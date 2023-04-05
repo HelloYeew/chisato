@@ -1,0 +1,183 @@
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap');
+
+* {
+    --chisato-background: #fefafa;
+    --chisato-background-rgb: 254, 250, 250;
+    --chisato-background-darker: #ffdede;
+    --chisato-background-darker-rgb: 255, 209, 209;
+    --chisato-border: #eab0b6;
+    --chisato-border-rgb: 234, 176, 182;
+    --chisato-disabled: #ea727c;
+    --chisato-disabled-rgb: 234, 114, 124;
+    --chisato-primary: #c43b4d;
+    --chisato-primary-rgb: 196, 59, 77;
+    --chisato-hover: #85334c;
+    --chisato-hover-rgb: 133, 51, 76;
+    --chisato-text: #292121;
+    --chisato-text-rgb: 41, 33, 33;
+    --chisato-translucent: rgba(101, 76, 79, 0.17);
+
+    --bs-body-bg: var(--chisato-background);
+    --bs-body-bg-rgb: var(--chisato-background-rgb);
+    --bs-body-color: var(--chisato-text);
+    --bs-body-color-rgb: var(--chisato-text-rgb);
+    --bs-tertiary-bg: var(--chisato-background-darker);
+    --bs-tertiary-bg-rgb: var(--chisato-background-darker-rgb);
+    --bs-border-width: 1px;
+    --bs-border-color-translucent: var(--chisato-translucent);
+
+    font-family: 'Comfortaa', cursive;
+    font-size: 16px;
+
+    transition: all .2s!important;
+}
+
+.dark * {
+    --chisato-background: #1e1d1d;
+    --chisato-background-rgb: 30, 29, 29;
+    --chisato-background-darker: #645757;
+    --chisato-background-darker-rgb: 100, 87, 87;
+    --chisato-border: #503d3f;
+    --chisato-border-rgb: 80, 61, 63;
+    --chisato-disabled: #ab787d;
+    --chisato-disabled-rgb: 171, 120, 125;
+    --chisato-primary: #d79aa5;
+    --chisato-primary-rgb: 215, 154, 165;
+    --chisato-hover: #db86a2;
+    --chisato-hover-rgb: 219, 134, 162;
+    --chisato-text: #e1cdcd;
+    --chisato-text-rgb: 225, 205, 205;
+    --chisato-translucent: rgba(182, 139, 144, 0.17);
+}
+
+.green * {
+    --chisato-background: #fbfefa;
+    --chisato-background-rgb: 251, 254, 250;
+    --chisato-background-darker: #e2ffde;
+    --chisato-background-darker-rgb: 226, 255, 222;
+    --chisato-border: #b2eab0;
+    --chisato-border-rgb: 178, 234, 176;
+    --chisato-disabled: #7aea72;
+    --chisato-disabled-rgb: 122, 234, 114;
+    --chisato-primary: #59c43b;
+    --chisato-primary-rgb: 89, 196, 59;
+    --chisato-hover: #3e8533;
+    --chisato-hover-rgb: 62, 133, 51;
+    --chisato-text: #222921;
+    --chisato-text-rgb: 34, 41, 33;
+    --chisato-translucent: rgba(81, 101, 76, 0.17);
+}
+
+body {
+    background-color: var(--chisato-background);
+}
+
+::selection {
+    color: var(--chisato-background);
+    background: var(--chisato-disabled);
+}
+
+::placeholder {
+    color: var(--chisato-disabled)!important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--chisato-primary);
+}
+
+.btn-primary {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--chisato-primary);
+    --bs-btn-border-color: var(--chisato-primary);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--chisato-hover);
+    --bs-btn-hover-border-color: var(--chisato-hover);
+    --bs-btn-focus-shadow-rgb: 0, 123, 255;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--chisato-hover);
+    --bs-btn-active-border-color: var(--chisato-hover);
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: var(--chisato-disabled);
+    --bs-btn-disabled-border-color: var(--chisato-disabled);
+}
+
+.btn-primary:hover {
+    background-color: var(--chisato-hover);
+    filter: brightness(85%);
+    transition: all .2s;
+    box-shadow: 0 0 15px var(--chisato-hover);
+}
+
+.btn-primary:focus {
+    outline: none;
+    background-color: var(--chisato-hover);
+    filter: brightness(85%);
+}
+
+a {
+    color: var(--chisato-primary);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--chisato-hover);
+}
+
+.breadcrumb-item.active {
+    color: var(--chisato-text);
+}
+
+.form-control {
+    color: var(--bs-body-color);
+    background-color: var(--chisato-background);
+    border: var(--bs-border-width) solid var(--chisato-border);
+}
+
+.form-control:focus {
+    color: var(--bs-body-color);
+    background-color: var(--chisato-background);
+    border-color: var(--chisato-border);
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(var(--chisato-border-rgb), 0.5);
+}
+
+.form-text {
+    color: var(--chisato-text);
+}
+
+.dropdown-menu {
+    --bs-dropdown-bg: var(--chisato-background);
+    --bs-dropdown-link-color: var(--bs-body-color);
+    --bs-dropdown-link-hover-color: var(--bs-body-color);
+    --bs-dropdown-link-hover-bg: var(--bs-tertiary-bg);
+    --bs-dropdown-link-active-color: var(--chisato-background);
+    --bs-dropdown-link-active-bg: var(--chisato-disabled);
+    --bs-dropdown-link-disabled-color: #adb5bd;
+    --bs-dropdown-header-color: var(--chisato-primary);
+}
+
+.badge-chisato {
+    color: var(--chisato-background);
+    background-color: var(--chisato-hover);
+}
+
+.navbar-brand {
+    color: var(--chisato-text);
+}
+
+.navbar-brand:hover {
+    color: var(--chisato-hover);
+}
+
+.nav-link {
+    color: var(--chisato-text);
+}
+
+.nav-link.show {
+    color: var(--chisato-text);
+}
+
+.nav-link:hover {
+    color: var(--chisato-hover);
+}
