@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 
 from backup.forms import BackupFileUploadForm
 from backup.models import OsuDatabaseBackupFile, CollectionDatabaseBackupFile
+from utility.rabbitmq.connection import get_rabbitmq_channel
 from utility.s3.collection import get_collection_s3_client
 
 S3_COLLECTION_BUCKET_NAME = config('S3_COLLECTION_BUCKET_NAME', default='')
@@ -84,6 +85,9 @@ def upload(request):
             osu.save()
             collection.save()
             messages.success(request, 'Upload file successfully!')
+            channel = get_rabbitmq_channel('database_process')
+            # channel.basic_publish(
+            #     exchange=
             return redirect('backup_home')
     else:
         form = BackupFileUploadForm()
