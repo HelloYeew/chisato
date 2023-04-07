@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'users',
     'collection',
     'utility',
-    'backup'
+    'backup',
+    'processor'
 ]
 
 MIDDLEWARE = [

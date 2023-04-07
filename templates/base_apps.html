@@ -1,7 +1,7 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" {% if user.is_authenticated and user.settings %}class="{{ user.settings.theme }}"{% endif %}>
 <head>
     <meta charset="UTF-8">
     {% include "favicon.html" %}

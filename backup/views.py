@@ -1,3 +1,5 @@
+import json
+
 from decouple import config
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -5,7 +7,8 @@ from django.shortcuts import render, redirect
 
 from backup.forms import BackupFileUploadForm
 from backup.models import OsuDatabaseBackupFile, CollectionDatabaseBackupFile
-from utility.rabbitmq.connection import get_rabbitmq_channel
+from collection.models import Collection
+from utility.rabbitmq.connection import get_rabbitmq_database_process_channel, DATABASE_PROCESS_EXCHANGE_NAME
 from utility.s3.collection import get_collection_s3_client
 
 S3_COLLECTION_BUCKET_NAME = config('S3_COLLECTION_BUCKET_NAME', default='')
@@ -85,9 +88,20 @@ def upload(request):
             osu.save()
             collection.save()
             messages.success(request, 'Upload file successfully!')
-            channel = get_rabbitmq_channel('database_process')
-            # channel.basic_publish(
-            #     exchange=
+            rabbitmq_message = {
+                'user_id': request.user.id,
+                'file_type': 'osu',
+                'file_name': random_osu_filename,
+                'file_url': osu.url,
+                'default_collection_id': Collection.objects.filter(owner=request.user, default_collection=True).first().id,
+                'default_collection_name': Collection.objects.filter(owner=request.user, default_collection=True).first().name
+            }
+            channel = get_rabbitmq_database_process_channel('database-process-default')
+            channel.basic_publish(
+                exchange=DATABASE_PROCESS_EXCHANGE_NAME,
+                routing_key='database-process-default',
+                body=json.dumps(rabbitmq_message)
+            )
             return redirect('backup_home')
     else:
         form = BackupFileUploadForm()

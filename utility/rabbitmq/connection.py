@@ -1,5 +1,6 @@
 import pika
 from decouple import config
+from pika.exceptions import StreamLostError
 
 RABBITMQ_HOST = config('RABBITMQ_HOST')
 RABBITMQ_PORT = config('RABBITMQ_PORT', default=5672, cast=int)
@@ -8,11 +9,20 @@ RABBITMQ_PASSWORD = config('RABBITMQ_PASSWORD', default='guest')
 
 credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
 parameters = pika.ConnectionParameters(RABBITMQ_HOST, RABBITMQ_PORT, '/', credentials)
-connection = pika.BlockingConnection(parameters)
+
+DATABASE_PROCESS_EXCHANGE_NAME = 'database-process'
 
 
-def get_rabbitmq_channel(queue_name: str = ''):
-    """Return RabbitMQ channel"""
-    channel = connection.channel()
-    # channel.exchange_declare(exchange='osu-collec
+def get_rabbitmq_database_process_channel(queue_name: str = 'default') -> pika.adapters.blocking_connection.BlockingChannel:
+    """Return RabbitMQ channel with queue and exchange"""
+    connection = pika.BlockingConnection(parameters)
+    try:
+        channel = connection.channel()
+    except StreamLostError:
+        # Try to reconnect
+        connection = pika.BlockingConnection(parameters)
+        channel = connection.channel()
+    channel.exchange_declare(exchange='database-process', durable=True, exchange_type='direct')
+    channel.queue_declare(queue=queue_name, durable=True)
+    channel.queue_bind(exchange=DATABASE_PROCESS_EXCHANGE_NAME, queue=queue_name, routing_key=queue_name)
     return channel
