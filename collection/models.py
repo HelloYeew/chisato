@@ -4,6 +4,7 @@ Structure of database models originally from
 - [beattosetto](https://github.com/beattosetto/beattosetto/blob/main/beatmap_collections/models.py)
 - [Freedom Dive mirror](https://github.com/HelloYeew/freedom-dive/blob/main/mirror/models.py)
 """
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 
@@ -77,3 +78,48 @@ class Beatmap(models.Model):
         db_table = 'collection_beatmap'
         verbose_name = 'Beatmap'
         verbose_name_plural = 'Beatmaps'
+
+
+class Collection(models.Model):
+    """
+    Database table to store the collection detail/
+    """
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
+    default_collection = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.name} - {self.owner} (default: {self.default_collection})'
+
+    class Meta:
+        db_table = 'collection_collection'
+        verbose_name = 'Collection'
+        verbose_name_plural = 'Collections'
+
+    def save(self, *args, **kwargs):
+        # throw error if user try to create more than one default collection
+        if self.default_collection:
+            if Collection.objects.filter(owner=self.owner, default_collection=True).exists():
+                raise ValueError('User can have only one default collection')
+        super(Collection, self).save(*args, **kwargs)
+
+
+class CollectionBeatmap(models.Model):
+    """
+    Database table to store the beatmap in collection.
+    """
+    collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
+    beatmap = models.ForeignKey(Beatmap, on_delete=models.CASCADE)
+    added_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.collection.name + ' - ' + self.beatmap.beatmapset.artist + ' - ' + self.beatmap.beatmapset.title + ' [' + self.beatmap.version + ']'
+
+    class Meta:
+        db_table = 'collection_collectionbeatmap'
+        verbose_name = 'Collection Beatmap'
+        verbose_name_plural = 'Collection Beatmaps'
+        unique_together = ('collection', 'beatmap')

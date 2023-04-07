@@ -1,0 +1,22 @@
+{% extends "base_apps.html" %}
+
+{% block title %}Backup{% endblock %}
+
+{% block styles %}
+
+{% endblock %}
+
+{% block content %}
+    <h1 style="padding-top: 1rem; padding-bottom: 1rem;">Backup</h1>
+    <a href="{% url 'backup_upload' %}" class="btn btn-primary"><i class="mdi mdi-cloud-upload" aria-hidden="true" style="font-size: 20px"></i> Backup</a>
+    <p></p>
+    {% if osu %}
+        <p>Your last backup was successfully at {{ osu.created_at }} UTC.</p>
+    {% else %}
+        <p>You have not backed up your data yet.</p>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock %}

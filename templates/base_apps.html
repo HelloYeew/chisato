@@ -39,6 +39,14 @@
                             <li><a class="dropdown-item" href="#">Create</a></li>
                         </ul>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="{% url 'backup_home' %}" data-bs-toggle="dropdown" aria-expanded="false">Backup</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'backup_home' %}">Home</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'backup_upload' %}">Upload</a></li>
+                        </ul>
+                    </li>
                 </ul>
                 {% if user.is_authenticated %}
                     <ul class="navbar-nav ml-auto">
