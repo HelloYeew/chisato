@@ -41,9 +41,11 @@ def home(request):
     # find latest backup file
     osu = OsuDatabaseBackupFile.objects.filter(owner=request.user).order_by('-created_at').first()
     collection = CollectionDatabaseBackupFile.objects.filter(owner=request.user).order_by('-created_at').first()
+    backup_time = OsuDatabaseBackupFile.objects.filter(owner=request.user).order_by('-created_at').count()
     return render(request, 'backup/home.html', {
         'osu': osu,
         'collection': collection,
+        'backup_time': backup_time
     })
 
 

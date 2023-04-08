@@ -34,6 +34,14 @@
 {#                        <a class="nav-link" href="#">Not Active</a>#}
 {#                    </li>#}
                     <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="{% url 'collections_home' %}" data-bs-toggle="dropdown" aria-expanded="false">Collections</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'collections_home' %}">Home</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Your Collection</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="{% url 'backup_home' %}" data-bs-toggle="dropdown" aria-expanded="false">Backup</a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{% url 'backup_home' %}">Home</a></li>

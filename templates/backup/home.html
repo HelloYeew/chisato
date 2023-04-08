@@ -12,6 +12,7 @@
     <p></p>
     {% if osu %}
         <p>Your last backup was successfully at {{ osu.created_at }} UTC.</p>
+        <p>You have backed up your osu! for {{ backup_time }} time{{ backup_time|pluralize }}.</p>
     {% else %}
         <p>You have not backed up your data yet.</p>
     {% endif %}
