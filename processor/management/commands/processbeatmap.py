@@ -5,6 +5,7 @@ import pika
 from decouple import config
 from django.core.management import BaseCommand
 from pika.exceptions import StreamLostError
+from sentry_sdk import capture_exception
 
 from collection.models import BeatmapSet, Beatmap, Collection, CollectionBeatmap
 from utility.osu_api.importer import import_beatmapset
@@ -23,6 +24,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         connection = pika.BlockingConnection(parameters)
+        connection.process_data_events(time_limit=2)
         channel = connection.channel()
         channel.exchange_declare(exchange='api-process', durable=True, exchange_type='direct')
         channel.queue_declare(queue='api-process-default', durable=True)
@@ -38,6 +40,7 @@ class Command(BaseCommand):
                 channel.exchange_declare(exchange='api-process', durable=True, exchange_type='direct')
                 channel.queue_declare(queue='api-process-default', durable=True)
                 channel.basic_consume(queue='api-process-default', on_message_callback=self.callback, auto_ack=True)
+                channel.start_consuming()
                 self.stdout.write(self.style.SUCCESS(f'🐰 Reconnected to RabbitMQ'))
             # Sleep for 5 seconds
             time.sleep(5)
@@ -56,17 +59,25 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.SUCCESS(f'🗺️ Beatmapset {message["BeatmapSetId"]} already exists, skipping'))
             else:
-                self.stdout.write(
-                    self.style.SUCCESS(f'🗺️ Beatmapset {message["BeatmapSetId"]} does not exist, importing'))
-                use_external_api = True
-                import_beatmapset(message['BeatmapSetId'])
+                if int(message['BeatmapSetId']) == 0 or int(message['BeatmapSetId']) == -1:
+                    self.stdout.write(
+                        self.style.SUCCESS(f'🗺️ Beatmapset {message["BeatmapSetId"]} is -1 (local), skipping'))
+                else:
+                    self.stdout.write(
+                        self.style.SUCCESS(f'🗺️ Beatmapset {message["BeatmapSetId"]} does not exist, importing'))
+                    use_external_api = True
+                    import_beatmapset(message['BeatmapSetId'])
+                    self.stdout.write(self.style.SUCCESS(f'🗺️ Beatmapset {message["BeatmapSetId"]} has been imported'))
             if Beatmap.objects.filter(beatmap_id=message['BeatmapId']).exists():
                 self.stdout.write(self.style.SUCCESS(f'🗺️ Beatmap {message["BeatmapId"]} already exists, skipping'))
             else:
-                self.stdout.write(self.style.SUCCESS(f'🗺️ Beatmap {message["BeatmapId"]} does not exist, importing'))
-                use_external_api = True
-                import_beatmapset(message['BeatmapSetId'])
-                self.stdout.write(self.style.SUCCESS(f'🗺️ Beatmap {message["BeatmapId"]} has been imported'))
+                if int(message['BeatmapId']) == 0 or int(message['BeatmapId']) == -1:
+                    self.stdout.write(self.style.SUCCESS(f'🗺️ Beatmap {message["BeatmapId"]} is 0 (local), skipping'))
+                else:
+                    self.stdout.write(self.style.SUCCESS(f'🗺️ Beatmap {message["BeatmapId"]} does not exist, importing'))
+                    use_external_api = True
+                    import_beatmapset(message['BeatmapSetId'])
+                    self.stdout.write(self.style.SUCCESS(f'🗺️ Beatmap {message["BeatmapId"]} has been imported'))
             # Check that collection exists
             if Collection.objects.filter(owner_id=message['UserId'], name=message['CollectionName']).exists():
                 self.stdout.write(
@@ -80,15 +91,19 @@ class Command(BaseCommand):
             if Collection.objects.filter(owner_id=message['UserId'], name=message['CollectionName']).exists():
                 self.stdout.write(self.style.SUCCESS(
                     f'➕ Collection {message["CollectionName"]} already exists, checking that beatmap is not already in it'))
-                beatmap = Beatmap.objects.get(beatmap_id=message['BeatmapId'])
-                collection = Collection.objects.get(owner_id=message['UserId'], name=message['CollectionName'])
-                if CollectionBeatmap.objects.filter(collection=collection, beatmap=beatmap).exists():
-                    self.stdout.write(self.style.SUCCESS(
-                        f'➕ Beatmap {message["BeatmapId"]} already exists in collection {message["CollectionName"]}'))
+                if int(message['BeatmapId']) != 0 or int(message['BeatmapId']) != -1:
+                    beatmap = Beatmap.objects.get(beatmap_id=message['BeatmapId'])
+                    collection = Collection.objects.get(owner_id=message['UserId'], name=message['CollectionName'])
+                    if CollectionBeatmap.objects.filter(collection=collection, beatmap=beatmap).exists():
+                        self.stdout.write(self.style.SUCCESS(
+                            f'➕ Beatmap {message["BeatmapId"]} already exists in collection {message["CollectionName"]}'))
+                    else:
+                        self.stdout.write(self.style.SUCCESS(
+                            f'➕ Beatmap {message["BeatmapId"]} does not exist in collection {message["CollectionName"]}, adding'))
+                        CollectionBeatmap.objects.create(collection=collection, beatmap=beatmap)
                 else:
                     self.stdout.write(self.style.SUCCESS(
-                        f'➕ Beatmap {message["BeatmapId"]} does not exist in collection {message["CollectionName"]}, adding'))
-                    CollectionBeatmap.objects.create(collection=collection, beatmap=beatmap)
+                        f'➕ Beatmap {message["BeatmapId"]} is local (-1 or 0), skipping'))
             else:
                 # This should never happen but just in case for safety
                 self.stdout.write(
@@ -100,3 +115,4 @@ class Command(BaseCommand):
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'❌ Error processing message {body}'))
             self.stdout.write(self.style.ERROR(f'❌ Error: {e}'))
+            capture_exception(e)

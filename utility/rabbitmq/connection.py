@@ -25,4 +25,5 @@ def get_rabbitmq_database_process_channel(queue_name: str = 'default') -> pika.a
     channel.exchange_declare(exchange='database-process', durable=True, exchange_type='direct')
     channel.queue_declare(queue=queue_name, durable=True)
     channel.queue_bind(exchange=DATABASE_PROCESS_EXCHANGE_NAME, queue=queue_name, routing_key=queue_name)
+    channel.basic_qos(prefetch_count=1, global_qos=False)
     return channel

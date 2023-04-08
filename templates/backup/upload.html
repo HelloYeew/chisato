@@ -10,6 +10,11 @@
 {% block content %}
     <h1 style="padding-top: 1rem; padding-bottom: 1rem;">Create new backup</h1>
     <p></p>
+    <p><b>Note :</b> The database file can be found from</p>
+    <ul>
+        <li>Windows : <code>%localappdata%\osu!</code></li>
+        <li>Mac OSX : <code>/Applications/osu!.app/Contents/Resources/drive_c/Program Files/osu!/</code></li>
+    </ul>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form | crispy }}

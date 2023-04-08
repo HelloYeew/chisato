@@ -23,6 +23,19 @@ def random_text(length: int = 16) -> str:
     return ''.join(random.choice(string.ascii_letters) for _ in range(length))
 
 
+def generate_rabbitmq_database_process_message(user_id: int, file_type: str, file_name: str,
+                                               file_url: str, default_collection_id: int,
+                                               default_collection_name: Collection.objects) -> str:
+    """Generate RabbitMQ message for database process"""
+    return json.dumps({
+        'user_id': user_id,
+        'file_type': file_type,
+        'file_name': file_name,
+        'file_url': file_url,
+        'default_collection_id': default_collection_id,
+        'default_collection_name': default_collection_name
+    })
+
 @login_required
 def home(request):
     # find latest backup file
@@ -87,20 +100,31 @@ def upload(request):
             collection.url = base_url + "/collection/" + str(request.user.id) + "/" + random_collection_filename
             osu.save()
             collection.save()
-            messages.success(request, 'Upload file successfully!')
-            rabbitmq_message = {
-                'user_id': request.user.id,
-                'file_type': 'osu',
-                'file_name': random_osu_filename,
-                'file_url': osu.url,
-                'default_collection_id': Collection.objects.filter(owner=request.user, default_collection=True).first().id,
-                'default_collection_name': Collection.objects.filter(owner=request.user, default_collection=True).first().name
-            }
+            messages.success(request, 'Upload file successfully! Your file will be started to process in a few minutes. A process time will depend on your database size.')
             channel = get_rabbitmq_database_process_channel('database-process-default')
             channel.basic_publish(
                 exchange=DATABASE_PROCESS_EXCHANGE_NAME,
                 routing_key='database-process-default',
-                body=json.dumps(rabbitmq_message)
+                body=generate_rabbitmq_database_process_message(
+                    user_id=request.user.id,
+                    file_type='osu',
+                    file_name=random_osu_filename,
+                    file_url=osu.url,
+                    default_collection_id=Collection.objects.filter(owner=request.user, default_collection=True).first().id,
+                    default_collection_name=Collection.objects.filter(owner=request.user, default_collection=True).first().name
+                )
+            )
+            channel.basic_publish(
+                exchange=DATABASE_PROCESS_EXCHANGE_NAME,
+                routing_key='database-process-default',
+                body=generate_rabbitmq_database_process_message(
+                    user_id=request.user.id,
+                    file_type='collection',
+                    file_name=random_collection_filename,
+                    file_url=collection.url,
+                    default_collection_id=Collection.objects.filter(owner=request.user, default_collection=True).first().id,
+                    default_collection_name=Collection.objects.filter(owner=request.user, default_collection=True).first().name
+                )
             )
             return redirect('backup_home')
     else:

@@ -7,8 +7,22 @@
 {% endblock %}
 
 {% block content %}
-    <h1 style="padding-top: 1rem; padding-bottom: 1rem;">Header!</h1>
+    <h1 style="padding-top: 1rem; padding-bottom: 1rem;">Welcome, {{ user.username }} !</h1>
     <a href="#" class="btn btn-primary"><i class="mdi mdi-plus" aria-hidden="true" style="font-size: 20px"></i> Dummy</a>
+    <p></p>
+    <h2>Statistics</h2>
+    <div>
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Collection</h4>
+                <p>{{ collection_count }}</p>
+            </div>
+            <div class="col-md-6">
+                <h4>Beatmap</h4>
+                <p>{{ beatmap_count }}</p>
+            </div>
+        </div>
+    </div>
     <p></p>
 {% endblock %}
 
