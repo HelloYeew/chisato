@@ -1,3 +1,4 @@
+from allauth.socialaccount.models import SocialAccount
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
@@ -5,6 +6,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import views as auth_views
 
 from users.forms import UserSettingsForm
+from users.models import Profile
 
 
 class LogoutAndRedirect(auth_views.LogoutView):
@@ -38,6 +40,16 @@ def settings(request):
             return redirect('settings')
     else:
         settings_form = UserSettingsForm(instance=request.user.settings)
+    try:
+        if SocialAccount.objects.filter(user=request.user).exists():
+            osu_username = SocialAccount.objects.get(user=request.user).extra_data["username"]
+        else:
+            osu_username = None
+    except KeyError:
+        osu_username = None
     return render(request, 'users/settings.html', {
-        'settings_form': settings_form
+        'settings_form': settings_form,
+        'osu_username': osu_username,
+        'profile': Profile.objects.get(user=request.user),
+        'social_account': SocialAccount.objects.filter(user=request.user).first()
     })

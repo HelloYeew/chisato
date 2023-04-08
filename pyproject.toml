@@ -20,6 +20,7 @@ requests = "^2.28.2"
 boto3 = "^1.26.108"
 pika = "^1.3.1"
 pika-stubs = "^0.1.3"
+rurusetto-allauth = "^0.53.0"
 
 
 [build-system]

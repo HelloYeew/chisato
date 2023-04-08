@@ -29,7 +29,7 @@ DEBUG = config('DEBUG', cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default='')
 
-LOGIN_URL = '/login'
+LOGIN_URL = 'account_login'
 LOGIN_REDIRECT_URL = '/collections'
 LOGOUT_REDIRECT_URL = '/login'
 
@@ -46,6 +46,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.osu',
     'users',
     'collection',
     'utility',
@@ -164,3 +168,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+# osu! OAuth support by rurusetto-allauth settings
+# https://pypi.org/project/rurusetto-allauth/
+
+SITE_ID = 1
+
+SOCIALACCOUNT_PROVIDERS = {
+    'osu': {
+        'SCOPE': [
+            'identify'
+        ],
+        'APP': {
+            'client_id': config('OSU_OAUTH_CLIENT_ID', default=""),
+            'secret': config('OSU_OAUTH_CLIENT_SECRET', default=""),
+        }
+    }
+}
+
+ACCOUNT_EMAIL_VERIFICATION = 'none'

@@ -10,6 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.1.96/css/materialdesignicons.min.css" rel="stylesheet" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
     <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    <link rel="stylesheet" href="{% static 'css/hover.css' %}">
     <title>{% block title %}{% endblock %} - Chisato</title>
 </head>
 <style>
@@ -51,7 +52,7 @@
                 {% if user.is_authenticated %}
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">{{ user.username }}</a>
+                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false"><img id="profile-picture" src="{{ user.profile.profile_picture.url }}" alt="{{ user.username }}" height="40" width="40" class="rounded-circle"> {{ user.username }}</a>
                             <ul class="dropdown-menu">
                                 {% if user.is_superuser %}
                                     <li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin</a></li>

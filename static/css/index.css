@@ -115,6 +115,36 @@ h1, h2, h3, h4, h5, h6 {
     filter: brightness(85%);
 }
 
+.btn-osu {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #ff66aa;
+    --bs-btn-border-color: #ff66aa;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #fc91c0;
+    --bs-btn-hover-border-color: #fc91c0;
+    --bs-btn-focus-shadow-rgb: 0, 123, 255;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #fc91c0;
+    --bs-btn-active-border-color: #fc91c0;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #8c516b;
+    --bs-btn-disabled-bg: #8c516b;
+    --bs-btn-disabled-border-color: #8c516b;
+}
+
+.btn-osu:hover {
+    background-color: #fc91c0;
+    filter: brightness(85%);
+    transition: all .2s;
+    box-shadow: 0 0 15px #fc91c0;;
+}
+
+.btn-osu:focus {
+    outline: none;
+    background-color: #fc91c0;;
+    filter: brightness(85%);
+}
+
 a {
     color: var(--chisato-primary);
     text-decoration: none;

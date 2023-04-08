@@ -4,6 +4,7 @@ import time
 import pika
 from decouple import config
 from django.core.management import BaseCommand
+from pika.exceptions import StreamLostError
 
 from collection.models import BeatmapSet, Beatmap, Collection, CollectionBeatmap
 from utility.osu_api.importer import import_beatmapset
@@ -27,8 +28,17 @@ class Command(BaseCommand):
         channel.queue_declare(queue='api-process-default', durable=True)
         channel.basic_consume(queue='api-process-default', on_message_callback=self.callback, auto_ack=True)
         while True:
-            channel.start_consuming()
-            self.stdout.write(self.style.SUCCESS(f'🐰 Waiting for messages'))
+            try:
+                channel.start_consuming()
+                self.stdout.write(self.style.SUCCESS(f'🐰 Waiting for messages'))
+            except StreamLostError:
+                # Try to reconnect
+                connection = pika.BlockingConnection(parameters)
+                channel = connection.channel()
+                channel.exchange_declare(exchange='api-process', durable=True, exchange_type='direct')
+                channel.queue_declare(queue='api-process-default', durable=True)
+                channel.basic_consume(queue='api-process-default', on_message_callback=self.callback, auto_ack=True)
+                self.stdout.write(self.style.SUCCESS(f'🐰 Reconnected to RabbitMQ'))
             # Sleep for 5 seconds
             time.sleep(5)
 

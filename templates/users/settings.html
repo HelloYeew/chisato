@@ -10,11 +10,20 @@
 {% block content %}
     <h1 style="padding-top: 1rem; padding-bottom: 1rem;">Settings</h1>
     <p></p>
+    <h2>Theme</h2>
     <form method="POST">
         {% csrf_token %}
         {{ settings_form | crispy }}
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
+    <br>
+    <h2>Account Connection</h2>
+    <p>You can connect Chisato account with your osu! account to login with your osu! account.</p>
+    {% if social_account %}
+        <p style="color:#ff66aa"><i class="mdi mdi-check" style="color:#ffb3d4"></i> This account is connected to your osu! account with username : {{ osu_confirm_username }}</p>
+    {% else %}
+        <a title="osu!" class="btn btn-osu socialaccount_provider osu text-decoration-none text-center" href="/accounts/osu/login/?process=connect">Connect to osu! account</a>
+    {% endif %}
 {% endblock %}
 
 {% block scripts %}

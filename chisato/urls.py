@@ -22,6 +22,7 @@ from django.urls import path, include
 from chisato import views
 
 urlpatterns = [
+    path('accounts/', include('allauth.urls')),
     path('', views.index, name='index'),
     path('admin/', admin.site.urls),
     path('', include('users.urls')),
