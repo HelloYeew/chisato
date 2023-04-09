@@ -1,12 +1,17 @@
 from datetime import datetime
 
+import requests
+from decouple import config
 from django.utils.timezone import make_aware
 
 from collection.models import BeatmapSet, Beatmap
 from utility.osu_api.services import get_raw_beatmapset_info
+from utility.s3.static import get_static_s3_client, generate_static_url
+
+S3_STATIC_BUCKET_NAME = config('S3_STATIC_BUCKET_NAME', default='chisato-static')
 
 
-def import_beatmapset(beatmapset_id: int):
+def import_beatmapset(beatmapset_id: int) -> BeatmapSet.objects:
     """Import beatmapset from osu! api"""
     result = get_raw_beatmapset_info(beatmapset_id)
     if not result:
@@ -108,4 +113,101 @@ def import_beatmapset(beatmapset_id: int):
                 pass_count=beatmap['passcount'],
                 bpm=beatmap['bpm']
             )
+    # Upload beatmapset picture to S3
+    s3_client = get_static_s3_client()
+    card_pic = requests.get(f"https://assets.ppy.sh/beatmaps/{beatmapset.beatmapset_id}/covers/card.jpg")
+    list_pic = requests.get(f"https://assets.ppy.sh/beatmaps/{beatmapset.beatmapset_id}/covers/list.jpg")
+    cover_pic = requests.get(f"https://assets.ppy.sh/beatmaps/{beatmapset.beatmapset_id}/covers/cover.jpg")
+    fullsize_pic = requests.get(f"https://assets.ppy.sh/beatmaps/{beatmapset.beatmapset_id}/covers/fullsize.jpg")
+    thumbnail_pic = requests.get(f"https://b.ppy.sh/thumb/{beatmapset.beatmapset_id}l.jpg")
+
+    card_path = f"beatmapset/{beatmapset.beatmapset_id}/covers/card.jpg"
+    list_path = f"beatmapset/{beatmapset.beatmapset_id}/covers/list.jpg"
+    cover_path = f"beatmapset/{beatmapset.beatmapset_id}/covers/cover.jpg"
+    fullsize_path = f"beatmapset/{beatmapset.beatmapset_id}/covers/fullsize.jpg"
+    thumbnail_path = f"beatmapset/{beatmapset.beatmapset_id}/covers/thumbnail.jpg"
+
+    if ("Access Denied" or "Not Found") not in str(card_pic.content) and card_pic.status_code == 200:
+        try:
+            s3_client.put_object(
+                Bucket=S3_STATIC_BUCKET_NAME,
+                Key=card_path,
+                Body=card_pic.content,
+                ContentType="image/jpeg",
+                ACL="public-read",
+                CacheControl="max-age=31536000"
+            )
+            print(f"✅ Uploaded card.jpg to S3 for beatmapset {beatmapset.beatmapset_id}.")
+        except Exception as e:
+            print(f"❌ Failed to upload card.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : {e}")
+    else:
+        print(f"❌ Failed to upload card.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : File not found.")
+    if ("Access Denied" or "Not Found") not in str(list_pic.content) and list_pic.status_code == 200:
+        try:
+            s3_client.put_object(
+                Bucket=S3_STATIC_BUCKET_NAME,
+                Key=list_path,
+                Body=list_pic.content,
+                ContentType="image/jpeg",
+                ACL="public-read",
+                CacheControl="max-age=31536000"
+            )
+            print(f"✅ Uploaded list.jpg to S3 for beatmapset {beatmapset.beatmapset_id}.")
+        except Exception as e:
+            print(f"❌ Failed to upload list.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : {e}")
+    else:
+        print(f"❌ Failed to upload list.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : File not found.")
+    if ("Access Denied" or "Not Found") not in str(cover_pic.content) and cover_pic.status_code == 200:
+        try:
+            s3_client.put_object(
+                Bucket=S3_STATIC_BUCKET_NAME,
+                Key=cover_path,
+                Body=cover_pic.content,
+                ContentType="image/jpeg",
+                ACL="public-read",
+                CacheControl="max-age=31536000"
+            )
+            print(f"✅ Uploaded cover.jpg to S3 for beatmapset {beatmapset.beatmapset_id}.")
+        except Exception as e:
+            print(f"❌ Failed to upload cover.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : {e}")
+    else:
+        print(f"❌ Failed to upload cover.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : File not found.")
+    if ("Access Denied" or "Not Found") not in str(fullsize_pic.content) and fullsize_pic.status_code == 200:
+        try:
+            s3_client.put_object(
+                Bucket=S3_STATIC_BUCKET_NAME,
+                Key=fullsize_path,
+                Body=fullsize_pic.content,
+                ContentType="image/jpeg",
+                ACL="public-read",
+                CacheControl="max-age=31536000"
+            )
+            print(f"✅ Uploaded fullsize.jpg to S3 for beatmapset {beatmapset.beatmapset_id}.")
+        except Exception as e:
+            print(f"❌ Failed to upload fullsize.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : {e}")
+    else:
+        print(f"❌ Failed to upload fullsize.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : File not found.")
+    if ("Access Denied" or "Not Found") not in str(thumbnail_pic.content) and thumbnail_pic.status_code == 200:
+        try:
+            s3_client.put_object(
+                Bucket=S3_STATIC_BUCKET_NAME,
+                Key=thumbnail_path,
+                Body=thumbnail_pic.content,
+                ContentType="image/jpeg",
+                ACL="public-read",
+                CacheControl="max-age=31536000"
+            )
+            print(f"✅ Uploaded thumbnail.jpg to S3 for beatmapset {beatmapset.beatmapset_id}.")
+        except Exception as e:
+            print(f"❌ Failed to upload thumbnail.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : {e}")
+    else:
+        print(f"❌ Failed to upload thumbnail.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : File not found.")
+
+    beatmapset.card_picture_url = generate_static_url(card_path)
+    beatmapset.list_picture_url = generate_static_url(list_path)
+    beatmapset.cover_picture_url = generate_static_url(cover_path)
+    beatmapset.full_size_picture_url = generate_static_url(fullsize_path)
+    beatmapset.thumbnail_picture_url = generate_static_url(thumbnail_path)
+    beatmapset.save()
+
     return beatmapset

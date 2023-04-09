@@ -13,7 +13,7 @@ parameters = pika.ConnectionParameters(RABBITMQ_HOST, RABBITMQ_PORT, '/', creden
 DATABASE_PROCESS_EXCHANGE_NAME = 'database-process'
 
 
-def get_rabbitmq_database_process_channel(queue_name: str = 'default') -> pika.adapters.blocking_connection.BlockingChannel:
+def get_rabbitmq_publish_database_process_channel(queue_name: str = 'default') -> pika.adapters.blocking_connection.BlockingChannel:
     """Return RabbitMQ channel with queue and exchange"""
     connection = pika.BlockingConnection(parameters)
     try:

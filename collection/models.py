@@ -33,6 +33,12 @@ class BeatmapSet(models.Model):
     favorite_count = models.IntegerField(default=0)
     play_count = models.IntegerField(default=0)
 
+    card_picture_url = models.URLField(default=None, null=True)
+    list_picture_url = models.URLField(default=None, null=True)
+    cover_picture_url = models.URLField(default=None, null=True)
+    full_size_picture_url = models.URLField(default=None, null=True)
+    thumbnail_picture_url = models.URLField(default=None, null=True)
+
     def __str__(self):
         return self.artist + ' - ' + self.title
 

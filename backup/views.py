@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from backup.forms import BackupFileUploadForm
 from backup.models import OsuDatabaseBackupFile, CollectionDatabaseBackupFile
 from collection.models import Collection
-from utility.rabbitmq.connection import get_rabbitmq_database_process_channel, DATABASE_PROCESS_EXCHANGE_NAME
+from utility.rabbitmq.connection import get_rabbitmq_publish_database_process_channel, DATABASE_PROCESS_EXCHANGE_NAME
 from utility.s3.collection import get_collection_s3_client
 
 S3_COLLECTION_BUCKET_NAME = config('S3_COLLECTION_BUCKET_NAME', default='')
@@ -103,7 +103,7 @@ def upload(request):
             osu.save()
             collection.save()
             messages.success(request, 'Upload file successfully! Your file will be started to process in a few minutes. A process time will depend on your database size.')
-            channel = get_rabbitmq_database_process_channel('database-process-default')
+            channel = get_rabbitmq_publish_database_process_channel('database-process-default')
             channel.basic_publish(
                 exchange=DATABASE_PROCESS_EXCHANGE_NAME,
                 routing_key='database-process-default',

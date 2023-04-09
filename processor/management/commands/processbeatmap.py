@@ -1,5 +1,6 @@
 import json
 import time
+import threading
 
 import pika
 from decouple import config
@@ -31,21 +32,45 @@ class Command(BaseCommand):
         channel.basic_consume(queue='api-process-default', on_message_callback=self.callback, auto_ack=True)
         while True:
             try:
+                connection.process_data_events(time_limit=2)
                 channel.start_consuming()
+                channel.close()
                 self.stdout.write(self.style.SUCCESS(f'🐰 Waiting for messages'))
+                time.sleep(10)
             except StreamLostError:
-                # Try to reconnect
-                connection = pika.BlockingConnection(parameters)
-                channel = connection.channel()
-                channel.exchange_declare(exchange='api-process', durable=True, exchange_type='direct')
-                channel.queue_declare(queue='api-process-default', durable=True)
-                channel.basic_consume(queue='api-process-default', on_message_callback=self.callback, auto_ack=True)
-                channel.start_consuming()
+                # check heartbeat
+                connection.process_data_events(time_limit=2)
+                # Try to reconnect (Deprecated : Use above code)
+                # connection = pika.BlockingConnection(parameters)
+                # channel = connection.channel()
+                # channel.exchange_declare(exchange='api-process', durable=True, exchange_type='direct')
+                # channel.queue_declare(queue='api-process-default', durable=True)
+                # channel.basic_consume(queue='api-process-default', on_message_callback=self.callback, auto_ack=True)
+                # channel.start_consuming()
+                # channel.close()
                 self.stdout.write(self.style.SUCCESS(f'🐰 Reconnected to RabbitMQ'))
-            # Sleep for 5 seconds
-            time.sleep(5)
+                time.sleep(10)
+            except KeyboardInterrupt:
+                # Gracefully close the connection
+                channel.stop_consuming()
+                connection.close()
+                self.stdout.write(self.style.SUCCESS(f'🐰 Closed connection to RabbitMQ'))
+                break
+            else:
+                break
 
     def callback(self, ch, method, properties, body):
+        """Callback from RabbitMQ consumer to create a new thread to process the message"""
+        thread = threading.Thread(target=self.process, args=(body,))
+        thread.start()
+        print(f'🐰 Started thread {thread.name} to process message {body}')
+        # Don't run the process parallel to not exceed the rate limit
+        thread.join()
+        # Print the message when the thread is done
+        print(f'🐰 Thread {thread.name} finished processing message {body}')
+
+    def process(self, body):
+        """Process the message from RabbitMQ"""
         use_external_api = False
         try:
             self.stdout.write(self.style.SUCCESS(f'✉️ Received message {body}'))
@@ -110,8 +135,8 @@ class Command(BaseCommand):
                     self.style.SUCCESS(f'➕ Collection {message["CollectionName"]} does not exist, skipping'))
             self.stdout.write(self.style.SUCCESS(f'✅️ Message {body} processed'))
             if use_external_api:
-                self.stdout.write(self.style.SUCCESS(f'🛌 Sleeping for 1.5 seconds to avoid rate limiting'))
-                time.sleep(1.5)
+                self.stdout.write(self.style.SUCCESS(f'🛌 Sleeping for 1 seconds to avoid rate limiting'))
+                time.sleep(1)
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'❌ Error processing message {body}'))
             self.stdout.write(self.style.ERROR(f'❌ Error: {e}'))
