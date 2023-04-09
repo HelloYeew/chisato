@@ -4,7 +4,7 @@ from django.core.management import BaseCommand
 from backup.models import OsuDatabaseBackupFile, CollectionDatabaseBackupFile
 from backup.views import generate_rabbitmq_database_process_message
 from collection.models import Collection
-from utility.rabbitmq.connection import get_rabbitmq_database_process_channel, DATABASE_PROCESS_EXCHANGE_NAME
+from utility.rabbitmq.connection import get_rabbitmq_publish_database_process_channel, DATABASE_PROCESS_EXCHANGE_NAME
 
 
 class Command(BaseCommand):
@@ -17,7 +17,7 @@ class Command(BaseCommand):
         for user in User.objects.all():
             all_latest_osu_backup.append(OsuDatabaseBackupFile.objects.filter(owner=user).order_by('-created_at').first())
             all_latest_collection_backup.append(CollectionDatabaseBackupFile.objects.filter(owner=user).order_by('-created_at').first())
-        rabbitmq_channel = get_rabbitmq_database_process_channel('database-process-default')
+        rabbitmq_channel = get_rabbitmq_publish_database_process_channel('database-process-default')
         for osu_backup in all_latest_osu_backup:
             default_collection = Collection.objects.filter(owner=osu_backup.owner, default_collection=True).first()
             rabbitmq_channel.basic_publish(

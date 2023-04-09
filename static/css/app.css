@@ -9,3 +9,13 @@
     margin: 1rem 0;
     border-radius: 1rem;
 }
+
+.beatmapset-row {
+    background: linear-gradient(0deg, rgba(var(--chisato-background-darker-rgb), 0.8), rgba(var(--chisato-background-darker-rgb), 0.8));
+    border: 1px solid var(--chisato-border);
+    border-radius: 0.25rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    margin-left: 0!important;
+    margin-right: 0!important;
+}

@@ -1,0 +1,54 @@
+{% extends "base_apps.html" %}
+{% load convert_json %}
+
+{% block title %}{{ collection.name }} Detail{% endblock %}
+
+{% block styles %}
+
+{% endblock %}
+
+{% block content %}
+    <h1 style="padding-top: 1rem; padding-bottom: 1rem;">{{ collection.name }} Detail</h1>
+    <a href="#" class="btn btn-primary"><i class="mdi mdi-plus" aria-hidden="true" style="font-size: 20px"></i> Dummy</a>
+    <p></p>
+    {% for beatmapset in beatmapsets|convert_json %}
+    <div class="beatmapset-row-wrapper" style="background: url({{ beatmapset.key.cover_picture_url }}) no-repeat center center; background-size: cover; width: 100%; height: 100%; border-radius: 0.25rem;">
+        <div class="row beatmapset-row">
+            {% with beatmapset.key as beatmapset %}
+            <div class="col-1">
+                <img alt="{{ beatmapset.title }}" src="{{ beatmapset.list_picture_url }}" style="width: 100%; border-radius: 0.5rem; min-width: 50px;">
+            </div>
+            <div class="col-10" style="vertical-align: center">
+                <p style="font-size: 20px; font-weight: 600;">{{ beatmapset.artist }} - {{ beatmapset.title }}</p>
+                {% if beatmapset.source %}
+                <p>from {{ beatmapset.source }}</p>
+                {% endif %}
+            </div>
+            <div class="col-1" style="vertical-align: center">
+{#                Collapse button#}
+                <p></p>
+                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse{{ beatmapset.id }}" aria-expanded="false" aria-controls="collapse{{ beatmapset.id }}">
+                    <i class="mdi mdi-chevron-down" aria-hidden="true" style="font-size: 20px"></i>
+                </button>
+            </div>
+            {% endwith %}
+        </div>
+    </div>
+    {% endfor %}
+    <ul>
+        {% for beatmapset in beatmapsets|convert_json %}
+            <li>
+                {{ beatmapset.key }}
+                <ul>
+                    {% for beatmap in beatmapset.value %}
+                    <li>{{ beatmap }}</li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock %}

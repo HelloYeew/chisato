@@ -1,0 +1,24 @@
+{% extends "base_apps.html" %}
+
+{% block title %}Your Collections{% endblock %}
+
+{% block styles %}
+
+{% endblock %}
+
+{% block content %}
+    <h1 style="padding-top: 1rem; padding-bottom: 1rem;">Your Collections</h1>
+    <a href="#" class="btn btn-primary"><i class="mdi mdi-plus" aria-hidden="true" style="font-size: 20px"></i> Dummy</a>
+    <p></p>
+    <ul>
+        {% for collection in collections %}
+            <li>
+                <a href="{% url "collections_detail" collection.id %}">{{ collection.name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock %}
