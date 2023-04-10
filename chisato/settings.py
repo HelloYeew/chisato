@@ -216,32 +216,7 @@ if config('SENTRY_DSN') != "":
 # https://docs.djangoproject.com/en/4.2/topics/logging/
 
 
-if DEBUG:
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'formatters': {
-            'standard': {
-                'format': '[%(asctime)s] {%(module)s} [%(levelname)s] - %(message)s',
-                'datefmt': '%d-%m-%Y %H:%M:%S'
-            },
-        },
-        'handlers': {
-            'console': {
-                'level': 'DEBUG',
-                'class': 'logging.StreamHandler',
-                'formatter': 'standard',
-            }
-        },
-        'loggers': {
-            '': {
-                'handlers': ['console'],
-                'level': 'DEBUG',
-                'propagate': True
-            }
-        }
-    }
-else:
+if config('LOKI_URL') != "":
     handler = logging_loki.LokiHandler(
         url=config('LOKI_URL', default="http://localhost:3100/loki/api/v1/push"),
         tags={"app": "chisato", "env": "debug" if DEBUG else "production"},
@@ -259,12 +234,12 @@ else:
         },
         'handlers': {
             'console': {
-                'level': 'DEBUG',
+                'level': 'INFO',
                 'class': 'logging.StreamHandler',
                 'formatter': 'standard',
             },
             'loki': {
-                'level': 'DEBUG',
+                'level': 'INFO',
                 'class': 'logging_loki.LokiHandler',
                 'url': config('LOKI_URL', default="http://localhost:3100/loki/api/v1/push"),
                 'tags': {"app": "chisato", "env": "debug" if DEBUG else "production"},
