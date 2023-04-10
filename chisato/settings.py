@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
+
+import logging_loki
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -209,3 +211,46 @@ if config('SENTRY_DSN') != "" and not DEBUG:
         # django.contrib.auth) you may enable sending PII data.
         send_default_pii=True
     )
+
+# Logging
+# https://docs.djangoproject.com/en/4.2/topics/logging/
+
+if config('LOKI_URL') != "":
+    handler = logging_loki.LokiHandler(
+        url=config('LOKI_URL', default="http://localhost:3100/loki/api/v1/push"),
+        tags={"app": "chisato", "env": "debug" if DEBUG else "production"},
+        version="1",
+    )
+
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'standard': {
+                'format': '[%(asctime)s] {%(module)s} [%(levelname)s] - %(message)s',
+                'datefmt': '%d-%m-%Y %H:%M:%S'
+            },
+        },
+        'handlers': {
+            'console': {
+                'level': 'INFO',
+                'class': 'logging.StreamHandler',
+                'formatter': 'standard',
+            },
+            'loki': {
+                'level': 'INFO',
+                'class': 'logging_loki.LokiHandler',
+                'url': config('LOKI_URL', default="http://localhost:3100/loki/api/v1/push"),
+                'tags': {"app": "chisato", "env": "debug" if DEBUG else "production"},
+                'version': "1",
+            },
+            # TODO: Seperate microservice tag
+        },
+        'loggers': {
+            '': {
+                'handlers': ['console', 'loki'],
+                'level': 'DEBUG',
+                'propagate': True
+            }
+        }
+    }
