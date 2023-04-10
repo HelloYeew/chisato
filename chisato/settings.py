@@ -33,7 +33,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default='')
 
 LOGIN_URL = 'account_login'
 LOGIN_REDIRECT_URL = '/collections'
-LOGOUT_REDIRECT_URL = '/login'
+LOGOUT_REDIRECT_URL = 'account_login'
 
 # Application definition
 
