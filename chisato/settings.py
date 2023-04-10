@@ -222,7 +222,7 @@ if config('LOKI_URL') != "":
         version="1",
     )
 
-if DEBUG or config('LOKI_URL') != "":
+if DEBUG or config('LOKI_URL') == "":
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
