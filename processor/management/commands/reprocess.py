@@ -33,7 +33,7 @@ class Command(BaseCommand):
                 )
             )
         for collection_backup in all_latest_collection_backup:
-            default_collection = Collection.objects.filter(owner=osu_backup.owner, default_collection=True).first()
+            default_collection = Collection.objects.filter(owner=collection_backup.owner, default_collection=True).first()
             rabbitmq_channel.basic_publish(
                 exchange=DATABASE_PROCESS_EXCHANGE_NAME,
                 routing_key='database-process-default',
