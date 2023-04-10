@@ -215,12 +215,6 @@ if config('SENTRY_DSN') != "":
 # Logging
 # https://docs.djangoproject.com/en/4.2/topics/logging/
 
-if config('LOKI_URL') != "":
-    handler = logging_loki.LokiHandler(
-        url=config('LOKI_URL', default="http://localhost:3100/loki/api/v1/push"),
-        tags={"app": "chisato", "env": "debug" if DEBUG else "production"},
-        version="1",
-    )
 
 if DEBUG:
     LOGGING = {
@@ -248,6 +242,12 @@ if DEBUG:
         }
     }
 else:
+    handler = logging_loki.LokiHandler(
+        url=config('LOKI_URL', default="http://localhost:3100/loki/api/v1/push"),
+        tags={"app": "chisato", "env": "debug" if DEBUG else "production"},
+        version="1",
+    )
+
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
