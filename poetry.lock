@@ -705,6 +705,22 @@ files = [
 ]
 
 [[package]]
+name = "python-logging-loki"
+version = "0.3.1"
+description = "Python logging handler for Grafana Loki."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "python-logging-loki-0.3.1.tar.gz", hash = "sha256:b83610c8a3adc99fbab072493b91dfb25ced69be4874fefe3ab457b391adbf60"},
+    {file = "python_logging_loki-0.3.1-py3-none-any.whl", hash = "sha256:8a9131db037fbea3d390089c4c32dbe7ed233944905079615a9fb6f669b0f4e6"},
+]
+
+[package.dependencies]
+requests = "*"
+rfc3339 = ">=6.1"
+
+[[package]]
 name = "python3-openid"
 version = "3.2.0"
 description = "OpenID support for modern servers and consumers."
@@ -775,6 +791,18 @@ requests = ">=2.0.0"
 
 [package.extras]
 rsa = ["oauthlib[signedtoken] (>=3.0.0)"]
+
+[[package]]
+name = "rfc3339"
+version = "6.2"
+description = "Format dates according to the RFC 3339."
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "rfc3339-6.2-py3-none-any.whl", hash = "sha256:f44316b21b21db90a625cde04ebb0d46268f153e6093021fa5893e92a96f58a3"},
+    {file = "rfc3339-6.2.tar.gz", hash = "sha256:d53c3b5eefaef892b7240ba2a91fef012e86faa4d0a0ca782359c490e00ad4d0"},
+]
 
 [[package]]
 name = "rurusetto-allauth"
@@ -928,4 +956,4 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "c7aaaf6cea1ed79db8556c2ac14796259b88381997f9f8d74d1d4e651bb8d713"
+content-hash = "59646373bef4efaa7e7ee788bbe1cc884634d8daf2c0996e439d88fa93d0b420"
