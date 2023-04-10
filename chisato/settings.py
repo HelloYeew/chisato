@@ -195,7 +195,7 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 # Sentry integration
 # https://docs.sentry.io/platforms/python/django/
 
-if config('SENTRY_DSN') != "" and not DEBUG:
+if config('SENTRY_DSN') != "":
     sentry_sdk.init(
         dsn=config('SENTRY_DSN'),
         integrations=[
