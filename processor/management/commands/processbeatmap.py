@@ -30,34 +30,27 @@ class Command(BaseCommand):
         channel.exchange_declare(exchange='api-process', durable=True, exchange_type='direct')
         channel.queue_declare(queue='api-process-default', durable=True)
         channel.basic_consume(queue='api-process-default', on_message_callback=self.callback, auto_ack=True)
-        while True:
-            try:
-                connection.process_data_events(time_limit=2)
-                channel.start_consuming()
-                channel.close()
-                self.stdout.write(self.style.SUCCESS(f'🐰 Waiting for messages'))
-                time.sleep(10)
-            except StreamLostError:
-                # check heartbeat
-                connection.process_data_events(time_limit=2)
-                # Try to reconnect (Deprecated : Use above code)
-                # connection = pika.BlockingConnection(parameters)
-                # channel = connection.channel()
-                # channel.exchange_declare(exchange='api-process', durable=True, exchange_type='direct')
-                # channel.queue_declare(queue='api-process-default', durable=True)
-                # channel.basic_consume(queue='api-process-default', on_message_callback=self.callback, auto_ack=True)
-                # channel.start_consuming()
-                # channel.close()
-                self.stdout.write(self.style.SUCCESS(f'🐰 Reconnected to RabbitMQ'))
-                time.sleep(10)
-            except KeyboardInterrupt:
-                # Gracefully close the connection
-                channel.stop_consuming()
-                connection.close()
-                self.stdout.write(self.style.SUCCESS(f'🐰 Closed connection to RabbitMQ'))
-                break
-            else:
-                break
+        try:
+            self.stdout.write(self.style.SUCCESS(f'🐰 Waiting for messages'))
+            channel.start_consuming()
+        except StreamLostError:
+            # check heartbeat
+            connection.process_data_events(time_limit=2)
+            # Try to reconnect (Deprecated : Use above code)
+            # connection = pika.BlockingConnection(parameters)
+            # channel = connection.channel()
+            # channel.exchange_declare(exchange='api-process', durable=True, exchange_type='direct')
+            # channel.queue_declare(queue='api-process-default', durable=True)
+            # channel.basic_consume(queue='api-process-default', on_message_callback=self.callback, auto_ack=True)
+            # channel.start_consuming()
+            # channel.close()
+            self.stdout.write(self.style.SUCCESS(f'🐰 Reconnected to RabbitMQ'))
+            time.sleep(10)
+        except KeyboardInterrupt:
+            # Gracefully close the connection
+            channel.stop_consuming()
+            connection.close()
+            self.stdout.write(self.style.SUCCESS(f'🐰 Closed connection to RabbitMQ'))
 
     def callback(self, ch, method, properties, body):
         """Callback from RabbitMQ consumer to create a new thread to process the message"""
