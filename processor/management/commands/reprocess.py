@@ -18,6 +18,8 @@ class Command(BaseCommand):
             all_latest_osu_backup.append(OsuDatabaseBackupFile.objects.filter(owner=user).order_by('-created_at').first())
             all_latest_collection_backup.append(CollectionDatabaseBackupFile.objects.filter(owner=user).order_by('-created_at').first())
         rabbitmq_channel = get_rabbitmq_publish_database_process_channel('database-process-default')
+        print('all_latest_osu_backup', all_latest_osu_backup)
+        print('all_latest_collection_backup', all_latest_collection_backup)
         for osu_backup in all_latest_osu_backup:
             if not osu_backup:
                 continue
