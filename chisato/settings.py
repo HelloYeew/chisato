@@ -222,6 +222,7 @@ if config('LOKI_URL') != "":
         version="1",
     )
 
+if DEBUG or config('LOKI_URL') != "":
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
@@ -233,18 +234,42 @@ if config('LOKI_URL') != "":
         },
         'handlers': {
             'console': {
-                'level': 'INFO',
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+                'formatter': 'standard',
+            }
+        },
+        'loggers': {
+            '': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+                'propagate': True
+            }
+        }
+    }
+else:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'standard': {
+                'format': '[%(asctime)s] {%(module)s} [%(levelname)s] - %(message)s',
+                'datefmt': '%d-%m-%Y %H:%M:%S'
+            },
+        },
+        'handlers': {
+            'console': {
+                'level': 'DEBUG',
                 'class': 'logging.StreamHandler',
                 'formatter': 'standard',
             },
             'loki': {
-                'level': 'INFO',
+                'level': 'DEBUG',
                 'class': 'logging_loki.LokiHandler',
                 'url': config('LOKI_URL', default="http://localhost:3100/loki/api/v1/push"),
                 'tags': {"app": "chisato", "env": "debug" if DEBUG else "production"},
                 'version': "1",
-            },
-            # TODO: Seperate microservice tag
+            }
         },
         'loggers': {
             '': {

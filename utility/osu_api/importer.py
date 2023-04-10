@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 import requests
@@ -7,6 +8,8 @@ from django.utils.timezone import make_aware
 from collection.models import BeatmapSet, Beatmap
 from utility.osu_api.services import get_raw_beatmapset_info
 from utility.s3.static import get_static_s3_client, generate_static_url
+
+logger = logging.getLogger(__name__)
 
 S3_STATIC_BUCKET_NAME = config('S3_STATIC_BUCKET_NAME', default='chisato-static')
 
@@ -113,6 +116,9 @@ def import_beatmapset(beatmapset_id: int) -> BeatmapSet.objects:
                 pass_count=beatmap['passcount'],
                 bpm=beatmap['bpm']
             )
+
+    logger.info(f"✅ Beatmapset {beatmapset.title} imported and updated.")
+
     # Upload beatmapset picture to S3
     s3_client = get_static_s3_client()
     card_pic = requests.get(f"https://assets.ppy.sh/beatmaps/{beatmapset.beatmapset_id}/covers/card.jpg")
@@ -137,11 +143,11 @@ def import_beatmapset(beatmapset_id: int) -> BeatmapSet.objects:
                 ACL="public-read",
                 CacheControl="max-age=31536000"
             )
-            print(f"✅ Uploaded card.jpg to S3 for beatmapset {beatmapset.beatmapset_id}.")
+            logger.info(f"✅ Uploaded card.jpg to S3 for beatmapset {beatmapset.beatmapset_id}.")
         except Exception as e:
-            print(f"❌ Failed to upload card.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : {e}")
+            logger.critical(f"❌ Failed to upload card.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : {e}")
     else:
-        print(f"❌ Failed to upload card.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : File not found.")
+        logger.warning(f"❌ Failed to upload card.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : File not found.")
     if ("Access Denied" or "Not Found") not in str(list_pic.content) and list_pic.status_code == 200:
         try:
             s3_client.put_object(
@@ -152,11 +158,11 @@ def import_beatmapset(beatmapset_id: int) -> BeatmapSet.objects:
                 ACL="public-read",
                 CacheControl="max-age=31536000"
             )
-            print(f"✅ Uploaded list.jpg to S3 for beatmapset {beatmapset.beatmapset_id}.")
+            logger.info(f"✅ Uploaded list.jpg to S3 for beatmapset {beatmapset.beatmapset_id}.")
         except Exception as e:
-            print(f"❌ Failed to upload list.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : {e}")
+            logger.critical(f"❌ Failed to upload list.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : {e}")
     else:
-        print(f"❌ Failed to upload list.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : File not found.")
+        logger.warning(f"❌ Failed to upload list.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : File not found.")
     if ("Access Denied" or "Not Found") not in str(cover_pic.content) and cover_pic.status_code == 200:
         try:
             s3_client.put_object(
@@ -167,11 +173,11 @@ def import_beatmapset(beatmapset_id: int) -> BeatmapSet.objects:
                 ACL="public-read",
                 CacheControl="max-age=31536000"
             )
-            print(f"✅ Uploaded cover.jpg to S3 for beatmapset {beatmapset.beatmapset_id}.")
+            logger.info(f"✅ Uploaded cover.jpg to S3 for beatmapset {beatmapset.beatmapset_id}.")
         except Exception as e:
-            print(f"❌ Failed to upload cover.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : {e}")
+            logger.critical(f"❌ Failed to upload cover.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : {e}")
     else:
-        print(f"❌ Failed to upload cover.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : File not found.")
+        logger.warning(f"❌ Failed to upload cover.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : File not found.")
     if ("Access Denied" or "Not Found") not in str(fullsize_pic.content) and fullsize_pic.status_code == 200:
         try:
             s3_client.put_object(
@@ -182,11 +188,11 @@ def import_beatmapset(beatmapset_id: int) -> BeatmapSet.objects:
                 ACL="public-read",
                 CacheControl="max-age=31536000"
             )
-            print(f"✅ Uploaded fullsize.jpg to S3 for beatmapset {beatmapset.beatmapset_id}.")
+            logger.info(f"✅ Uploaded fullsize.jpg to S3 for beatmapset {beatmapset.beatmapset_id}.")
         except Exception as e:
-            print(f"❌ Failed to upload fullsize.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : {e}")
+            logger.critical(f"❌ Failed to upload fullsize.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : {e}")
     else:
-        print(f"❌ Failed to upload fullsize.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : File not found.")
+        logger.warning(f"❌ Failed to upload fullsize.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : File not found.")
     if ("Access Denied" or "Not Found") not in str(thumbnail_pic.content) and thumbnail_pic.status_code == 200:
         try:
             s3_client.put_object(
@@ -197,11 +203,11 @@ def import_beatmapset(beatmapset_id: int) -> BeatmapSet.objects:
                 ACL="public-read",
                 CacheControl="max-age=31536000"
             )
-            print(f"✅ Uploaded thumbnail.jpg to S3 for beatmapset {beatmapset.beatmapset_id}.")
+            logging.info(f"✅ Uploaded thumbnail.jpg to S3 for beatmapset {beatmapset.beatmapset_id}.")
         except Exception as e:
-            print(f"❌ Failed to upload thumbnail.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : {e}")
+            logger.critical(f"❌ Failed to upload thumbnail.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : {e}")
     else:
-        print(f"❌ Failed to upload thumbnail.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : File not found.")
+        logger.warning(f"❌ Failed to upload thumbnail.jpg to S3 for beatmapset {beatmapset.beatmapset_id}. : File not found.")
 
     beatmapset.card_picture_url = generate_static_url(card_path)
     beatmapset.list_picture_url = generate_static_url(list_path)
@@ -209,5 +215,6 @@ def import_beatmapset(beatmapset_id: int) -> BeatmapSet.objects:
     beatmapset.full_size_picture_url = generate_static_url(fullsize_path)
     beatmapset.thumbnail_picture_url = generate_static_url(thumbnail_path)
     beatmapset.save()
+    logger.info(f"✅ Updated beatmapset {beatmapset.beatmapset_id} with new cover urls.")
 
     return beatmapset

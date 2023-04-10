@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth.models import User
 from django.core.management import BaseCommand
 
@@ -5,6 +7,8 @@ from backup.models import OsuDatabaseBackupFile, CollectionDatabaseBackupFile
 from backup.views import generate_rabbitmq_database_process_message
 from collection.models import Collection
 from utility.rabbitmq.connection import get_rabbitmq_publish_database_process_channel, DATABASE_PROCESS_EXCHANGE_NAME
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -53,4 +57,4 @@ class Command(BaseCommand):
                 )
             )
         rabbitmq_channel.close()
-        self.stdout.write(self.style.SUCCESS(f'✅ Queued all latest backups for processing ({len(all_latest_osu_backup)} osu! backups and {len(all_latest_collection_backup)} collection backups)'))
+        logger.info(f'✅ Queued all latest backups for processing ({len(all_latest_osu_backup)} osu! backups and {len(all_latest_collection_backup)} collection backups)')
