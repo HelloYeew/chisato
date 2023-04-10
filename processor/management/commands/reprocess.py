@@ -19,6 +19,8 @@ class Command(BaseCommand):
             all_latest_collection_backup.append(CollectionDatabaseBackupFile.objects.filter(owner=user).order_by('-created_at').first())
         rabbitmq_channel = get_rabbitmq_publish_database_process_channel('database-process-default')
         for osu_backup in all_latest_osu_backup:
+            if not osu_backup:
+                continue
             default_collection = Collection.objects.filter(owner=osu_backup.owner, default_collection=True).first()
             rabbitmq_channel.basic_publish(
                 exchange=DATABASE_PROCESS_EXCHANGE_NAME,
@@ -33,6 +35,8 @@ class Command(BaseCommand):
                 )
             )
         for collection_backup in all_latest_collection_backup:
+            if not collection_backup:
+                continue
             default_collection = Collection.objects.filter(owner=collection_backup.owner, default_collection=True).first()
             rabbitmq_channel.basic_publish(
                 exchange=DATABASE_PROCESS_EXCHANGE_NAME,
