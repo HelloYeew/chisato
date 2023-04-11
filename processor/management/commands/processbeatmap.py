@@ -108,7 +108,8 @@ class Command(BaseCommand):
             logger.info(f'➕ Adding beatmap {message["BeatmapId"]} to collection')
             if Collection.objects.filter(owner_id=message['UserId'], name=message['CollectionName']).exists():
                 logger.info(f'➕ Collection {message["CollectionName"]} already exists, checking that beatmap is not already in it')
-                if int(message['BeatmapId']) != 0 and int(message['BeatmapId']) != -1:
+                collection = Collection.objects.get(owner_id=message['UserId'], name=message['CollectionName'])
+                if int(message['BeatmapId']) != 0 and int(message['BeatmapId']) != -1 and collection.default_collection:
                     beatmap = Beatmap.objects.get(beatmap_id=message['BeatmapId'])
                     collection = Collection.objects.get(owner_id=message['UserId'], name=message['CollectionName'])
                     if CollectionBeatmap.objects.filter(collection=collection, beatmap=beatmap).exists():
@@ -120,6 +121,20 @@ class Command(BaseCommand):
                         CollectionBeatmap.objects.create(collection=collection, beatmap=beatmap)
                         logger.info(
                             f'➕ Beatmap {message["BeatmapId"]} has been added to collection {message["CollectionName"]}')
+                elif not collection.default_collection:
+                    if Beatmap.objects.filter(checksum=message['BeatmapChecksum']).exists():
+                        beatmap = Beatmap.objects.filter(checksum=message['BeatmapChecksum']).first()
+                        if CollectionBeatmap.objects.filter(collection=collection, beatmap=beatmap).exists():
+                            logger.info(
+                                f'➕ Beatmap with checksum {message["BeatmapChecksum"]} already exists in collection {message["CollectionName"]}')
+                        else:
+                            logger.info(
+                                f'➕ Beatmap with checksum {message["BeatmapChecksum"]} does not exist in collection {message["CollectionName"]}, adding')
+                            CollectionBeatmap.objects.create(collection=collection, beatmap=beatmap)
+                            logger.info(
+                                f'➕ Beatmap with checksum {message["BeatmapChecksum"]} has been added to collection {message["CollectionName"]}')
+                    else:
+                        logger.info(f'➕ Beatmap with checksum {message["BeatmapChecksum"]} does not exist, skipping')
                 else:
                     logger.info(f'➕ Beatmap {message["BeatmapId"]} is local (-1 or 0), skipping')
             else:
