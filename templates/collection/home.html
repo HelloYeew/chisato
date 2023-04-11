@@ -8,10 +8,12 @@
 
 {% block content %}
     <h1 style="padding-top: 1rem; padding-bottom: 1rem;">Welcome, {{ user.username }} !</h1>
+    {% if beatmap_count == 0 %}
     <div class="alert alert-warning" role="alert">
         <i class="mdi mdi-bell" aria-hidden="true" style="font-size: 20px"></i> You don't have any beatmap yet, let's upload your collection by <a href="{% url 'backup_upload' %}">create new backup</a> !
     </div>
-    <a href="#" class="btn btn-primary"><i class="mdi mdi-account" aria-hidden="true" style="font-size: 20px"></i> Your Collections</a>
+    {% endif %}
+    <a href="{% url 'collections_list' %}" class="btn btn-primary"><i class="mdi mdi-account" aria-hidden="true" style="font-size: 20px"></i> Your Collections</a>
     <a href="{% url 'backup_home' %}" class="btn btn-primary"><i class="mdi mdi-cloud-upload" aria-hidden="true" style="font-size: 20px"></i> Backup</a>
     <p></p>
     <h2>Statistics</h2>

@@ -1,16 +1,23 @@
 {% extends "base_apps.html" %}
 {% load convert_json %}
 
-{% block title %}{{ collection.name }} Detail{% endblock %}
+{% block title %}{{ collection.name }} by {{ collection.owner.username }}{% endblock %}
 
 {% block styles %}
 
 {% endblock %}
 
 {% block content %}
-    <h1 style="padding-top: 1rem; padding-bottom: 1rem;">{{ collection.name }} Detail</h1>
+    <h1 style="padding-top: 1rem; padding-bottom: 1rem;">{{ collection.name }}</h1>
+    <h3>
+        by {{ collection.owner.username }}
+        {% if collection.default_collection %}
+            <span class="badge rounded-pill" style="background-color: var(--chisato-background-darker);">Default</span>
+        {% endif %}
+    </h3>
     <a href="#" class="btn btn-primary"><i class="mdi mdi-pencil" aria-hidden="true" style="font-size: 20px"></i> Edit</a>
     <p></p>
+    <p>{{ showing_string }}</p>
     {% for beatmapset in beatmapsets|convert_json %}
     {% with beatmapset.key as beatmapset %}
     <div class="beatmapset-row-wrapper" style="background: url({{ beatmapset.cover_picture_url }}) no-repeat center center; background-size: cover; width: 100%; height: 100%; border-radius: 0.25rem;">
@@ -42,6 +49,9 @@
                 {% endif %}
             </div>
             <div class="col-1" style="vertical-align: center">
+                <a class="btn btn-primary" href="osu://dl/{{ beatmapset.beatmapset_id }}" role="button">
+                    <i class="mdi mdi-download" aria-hidden="true" style="font-size: 20px"></i>
+                </a>
                 <p></p>
                 <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapse{{ forloop.counter }}" role="button" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
                     <i class="mdi mdi-chevron-down" aria-hidden="true" style="font-size: 20px"></i>
@@ -52,7 +62,6 @@
     {% endwith %}
     <div class="collapse" id="collapse{{ forloop.counter }}" style="padding-bottom: 1rem;">
         <div class="card card-body">
-{#            mp3 player#}
             <audio controls>
                 <source src="//b.ppy.sh/preview/{{ beatmapset.key.beatmapset_id }}.mp3" type="audio/mpeg">
                 Your browser does not support the audio element.
@@ -65,8 +74,27 @@
         </div>
     </div>
     {% endfor %}
+    <div style="text-align:center">
+        <p>Page {{ page_number }} of {{ total_page }}</p>
+        {% if total_page > 1 %}
+            <div class="d-flex justify-content-center">
+                <a href="{% url 'collections_detail' collection.id %}?page={{ page_number|add:'-1' }}" class="btn btn-primary {% if page_number == 1 %}disabled{% endif %}"><i class="mdi mdi-arrow-left" aria-hidden="true" style="font-size: 20px"></i></a>
+                <select class="form-select" aria-label="Page Select" id="page-select" style="max-width: 100px; margin: 0 0.5rem;">
+                    {% for i in page_list %}
+                        <option value="{{ i }}" {% if i == page_number %}selected{% endif %}>{{ i }}</option>
+                    {% endfor %}
+                </select>
+                <a href="{% url 'collections_detail' collection.id %}?page={{ page_number|add:'1' }}" class="btn btn-primary {% if page_number == total_page %}disabled{% endif %}"><i class="mdi mdi-arrow-right" aria-hidden="true" style="font-size: 20px"></i></a>
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}
 
 {% block scripts %}
-
+<script>
+    page_select = document.getElementById("page-select");
+    page_select.addEventListener("change", function() {
+        window.location.href = "{% url 'collections_detail' collection.id %}?page=" + page_select.value;
+    });
+</script>
 {% endblock %}
