@@ -245,6 +245,7 @@ if config('LOKI_URL') != "":
                 'tags': {"app": "chisato", "env": "debug" if DEBUG else "production"},
                 'version': "1",
             }
+            # TODO: Fix broken setting from https://github.com/HelloYeew/chisato/commit/251e2827b68fe28f2074d69ed53d1c7c4144b504
         },
         'loggers': {
             '': {
