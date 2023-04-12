@@ -96,6 +96,7 @@ class Collection(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
     default_collection = models.BooleanField(default=False)
+    private = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.name} - {self.owner} (default: {self.default_collection})'
@@ -104,13 +105,6 @@ class Collection(models.Model):
         db_table = 'collection_collection'
         verbose_name = 'Collection'
         verbose_name_plural = 'Collections'
-
-    def save(self, *args, **kwargs):
-        # throw error if user try to create more than one default collection
-        if self.default_collection:
-            if Collection.objects.filter(owner=self.owner, default_collection=True).exists():
-                raise ValueError('User can have only one default collection')
-        super(Collection, self).save(*args, **kwargs)
 
 
 class CollectionBeatmap(models.Model):

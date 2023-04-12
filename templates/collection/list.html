@@ -16,7 +16,7 @@
                 <img alt="{{ collection.name }}" src="{% static 'placeholder.png' %}" style="width: 100%; border-radius: 0.5rem; min-width: 50px;">
             </div>
             <div class="col-10" style="vertical-align: center">
-                <p style="font-size: 20px; font-weight: 600;">{{ collection.name }} {% if collection.default_collection %}<span class="badge rounded-pill" style="background-color: var(--chisato-background);">Default</span>{% endif %}</p>
+                <p style="font-size: 20px; font-weight: 600;">{{ collection.name }} {% if collection.default_collection %}<span class="badge rounded-pill" style="background-color: var(--chisato-background);">Default</span>{% endif %} {% if collection.private %}<span class="badge rounded-pill" style="background-color: var(--chisato-background);">Private</span>{% endif %}</p>
             </div>
             <div class="col-1" style="vertical-align: center">
                 <p></p>

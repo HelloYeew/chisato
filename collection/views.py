@@ -1,8 +1,10 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
+from collection.forms import CollectionForm
 from collection.models import Collection, CollectionBeatmap
 
 BEATMAPSET_PER_PAGE = 20
@@ -27,9 +29,10 @@ def collection_list(request):
     })
 
 
-@login_required
 def collection_detail(request, collection_id):
     collection = Collection.objects.get(id=collection_id)
+    if collection.private and collection.owner != request.user:
+        return render(request, '404.html', status=404)
     beatmaps = CollectionBeatmap.objects.filter(collection=collection).order_by('beatmap__beatmapset__artist', 'beatmap__beatmapset__title')
     # Group beatmapset by beatmapset_id
     beatmapsets = {}
@@ -77,4 +80,25 @@ def collection_detail(request, collection_id):
         'total_page': total_page,
         'page_list': range(1, total_page + 1),
         'showing_string': showing_string
+    })
+
+
+def edit_collection(request, collection_id):
+    collection = Collection.objects.get(id=collection_id)
+    if collection.owner != request.user:
+        return render(request, '404.html', status=404)
+    if request.method == 'POST':
+        form = CollectionForm(request.POST, instance=collection)
+        if form.is_valid():
+            collection.name = form.cleaned_data['name']
+            collection.private = form.cleaned_data['private']
+            collection.description = form.cleaned_data['description']
+            collection.save()
+            messages.success(request, 'Collection updated successfully!')
+            return redirect(reverse('collections_detail', kwargs={'collection_id': collection_id}))
+    else:
+        form = CollectionForm(instance=collection)
+    return render(request, 'collection/edit.html', {
+        'collection': collection,
+        'form': form
     })

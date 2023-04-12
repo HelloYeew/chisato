@@ -14,8 +14,15 @@
         {% if collection.default_collection %}
             <span class="badge rounded-pill" style="background-color: var(--chisato-background-darker);">Default</span>
         {% endif %}
+        {% if collection.private %}
+            <span class="badge rounded-pill" style="background-color: var(--chisato-background-darker);">Private</span>
+        {% endif %}
     </h3>
-    <a href="#" class="btn btn-primary"><i class="mdi mdi-pencil" aria-hidden="true" style="font-size: 20px"></i> Edit</a>
+    <p>{{ collection.description }}</p>
+    <p></p>
+    {% if collection.owner == user %}
+    <a href="{% url 'collections_edit' collection.id %}" class="btn btn-primary"><i class="mdi mdi-pencil" aria-hidden="true" style="font-size: 20px"></i> Edit</a>
+    {% endif %}
     <p></p>
     <p>{{ showing_string }}</p>
     {% for beatmapset in beatmapsets|convert_json %}
