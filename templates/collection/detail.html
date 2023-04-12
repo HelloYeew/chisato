@@ -26,60 +26,7 @@
     <p></p>
     <p>{{ showing_string }}</p>
     {% for beatmapset in beatmapsets|convert_json %}
-    {% with beatmapset.key as beatmapset %}
-    <div class="beatmapset-row-wrapper" style="background: url({{ beatmapset.cover_picture_url }}) no-repeat center center; background-size: cover; width: 100%; height: 100%; border-radius: 0.25rem;">
-        <div class="row beatmapset-row">
-            <div class="col-1">
-                <img alt="{{ beatmapset.title }}" src="{{ beatmapset.list_picture_url }}" style="width: 100%; border-radius: 0.5rem; min-width: 50px;">
-            </div>
-            <div class="col-10" style="vertical-align: center">
-                <p style="font-size: 20px; font-weight: 600;">
-                    {{ beatmapset.artist }} - {{ beatmapset.title }}
-                    {% if beatmapset.approved == 4 %}
-                        <span class="badge rounded-pill" style="background-color: rgb(241, 101, 160); color: rgb(51, 58, 61); margin-top: -2px"> LOVED</span>
-                    {% elif beatmapset.approved == 3 %}
-                        <span class="badge rounded-pill" style="background-color: rgb(106, 196, 254); color: rgb(51, 58, 61);">QUALIFIED</span>
-                    {% elif beatmapset.approved == 2 %}
-                        <span class="badge rounded-pill" style="background-color: rgb(210, 208, 85); color: rgb(51, 58, 61);">APPROVED</span>
-                    {% elif beatmapset.approved == 1 %}
-                        <span class="badge rounded-pill" style="background-color: rgb(185, 251, 98); color: rgb(51, 58, 61);">RANKED</span>
-                    {% elif beatmapset.approved == 0 %}
-                        <span class="badge rounded-pill" style="background-color: rgb(252, 212, 96); color: rgb(51, 58, 61);">PENDING</span>
-                    {% elif beatmapset.approved == -1 %}
-                        <span class="badge rounded-pill" style="background-color: rgb(245, 146, 93); color: rgb(51, 58, 61);">WIP</span>
-                    {% elif beatmapset.approved == -2 %}
-                        <span class="badge rounded-pill" style="background-color: rgb(0, 0, 0); color: rgb(83, 94, 101);">GRAVEYARD</span>
-                    {% endif %}
-                </p>
-                {% if beatmapset.source %}
-                <p>from {{ beatmapset.source }}</p>
-                {% endif %}
-            </div>
-            <div class="col-1" style="vertical-align: center">
-                <a class="btn btn-primary" href="osu://dl/{{ beatmapset.beatmapset_id }}" role="button">
-                    <i class="mdi mdi-download" aria-hidden="true" style="font-size: 20px"></i>
-                </a>
-                <p></p>
-                <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapse{{ forloop.counter }}" role="button" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
-                    <i class="mdi mdi-chevron-down" aria-hidden="true" style="font-size: 20px"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-    {% endwith %}
-    <div class="collapse" id="collapse{{ forloop.counter }}" style="padding-bottom: 1rem;">
-        <div class="card card-body">
-            <audio controls>
-                <source src="//b.ppy.sh/preview/{{ beatmapset.key.beatmapset_id }}.mp3" type="audio/mpeg">
-                Your browser does not support the audio element.
-            </audio>
-            <ul>
-                {% for beatmap in beatmapset.value %}
-                    <li>{{ beatmap }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
+    {% include 'collection/snippets/beatmapset_row.html' %}
     {% endfor %}
     <div style="text-align:center">
         <p>Page {{ page_number }} of {{ total_page }}</p>

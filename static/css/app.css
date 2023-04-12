@@ -38,4 +38,8 @@
     #recommend-beatmap-link {
         width: 100%!important;
     }
+
+    .beatmap-info-card {
+        background-image: linear-gradient(to bottom, transparent, var(--chisato-background-darker) 140px), var(--chisato-background-darker)!important;
+    }
 }

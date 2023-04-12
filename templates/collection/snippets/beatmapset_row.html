@@ -1,0 +1,221 @@
+{% load static %}
+{% load length_format %}
+{% load humanize %}
+{% load convert_progress_bar %}
+{% load convert_beatmap_stat %}
+{% load convert_star_rating %}
+{% load beatmap_constants %}
+
+{% with beatmapset.key as beatmapset %}
+    <div class="beatmapset-row-wrapper" style="background: url({{ beatmapset.cover_picture_url }}) no-repeat center center; background-size: cover; width: 100%; height: 100%; border-radius: 0.25rem;">
+        <div class="row beatmapset-row">
+            <div class="col-1">
+                <img alt="{{ beatmapset.title }}" src="{{ beatmapset.list_picture_url }}" style="width: 100%; border-radius: 0.5rem; min-width: 50px;">
+            </div>
+            <div class="col-10" style="vertical-align: center">
+                <p style="font-size: 20px; font-weight: 600;">
+                    {{ beatmapset.artist }} - {{ beatmapset.title }}
+                    {% if beatmapset.approved == 4 %}
+                        <span class="badge rounded-pill" style="background-color: rgb(241, 101, 160); color: rgb(51, 58, 61); margin-top: -2px"> LOVED</span>
+                    {% elif beatmapset.approved == 3 %}
+                        <span class="badge rounded-pill" style="background-color: rgb(106, 196, 254); color: rgb(51, 58, 61);">QUALIFIED</span>
+                    {% elif beatmapset.approved == 2 %}
+                        <span class="badge rounded-pill" style="background-color: rgb(210, 208, 85); color: rgb(51, 58, 61);">APPROVED</span>
+                    {% elif beatmapset.approved == 1 %}
+                        <span class="badge rounded-pill" style="background-color: rgb(185, 251, 98); color: rgb(51, 58, 61);">RANKED</span>
+                    {% elif beatmapset.approved == 0 %}
+                        <span class="badge rounded-pill" style="background-color: rgb(252, 212, 96); color: rgb(51, 58, 61);">PENDING</span>
+                    {% elif beatmapset.approved == -1 %}
+                        <span class="badge rounded-pill" style="background-color: rgb(245, 146, 93); color: rgb(51, 58, 61);">WIP</span>
+                    {% elif beatmapset.approved == -2 %}
+                        <span class="badge rounded-pill" style="background-color: rgb(0, 0, 0); color: rgb(83, 94, 101);">GRAVEYARD</span>
+                    {% endif %}
+                </p>
+                {% if beatmapset.source %}
+                    <p>from {{ beatmapset.source }}</p>
+                {% endif %}
+            </div>
+            <div class="col-1" style="vertical-align: center">
+                <a class="btn btn-primary" href="osu://dl/{{ beatmapset.beatmapset_id }}" role="button">
+                    <i class="mdi mdi-download" aria-hidden="true" style="font-size: 20px"></i>
+                </a>
+                <p></p>
+                <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapse{{ forloop.counter }}" role="button" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
+                    <i class="mdi mdi-chevron-down" aria-hidden="true" style="font-size: 20px"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+{% endwith %}
+<div class="collapse" id="collapse{{ forloop.counter }}" style="padding-bottom: 1rem;">
+    <div class="card card-body beatmap-info-card" style="background-image: linear-gradient(to bottom, transparent, var(--chisato-background-darker) 140px), url({{ beatmapset.key.cover_picture_url }}); background-size:100%; background-repeat: no-repeat;">
+        <h4 class="beatmap-title fw-bold">{{ beatmapset.key.title }}</h4>
+        <h6 class="fw-bold">{{ beatmapset.key.artist }}</h6>
+        <h6>
+            {% if beatmapset.key.approved == 4 %}
+                <span class="badge rounded-pill bold-font" style="background-color: rgb(241, 101, 160); color: rgb(51, 58, 61); margin-top: -2px">LOVED</span>
+            {% elif beatmapset.key.approved == 3 %}
+                <span class="badge rounded-pill bold-font" style="background-color: rgb(106, 196, 254); color: rgb(51, 58, 61); margin-top: -2px">QUALIFIED</span>
+            {% elif beatmapset.key.approved == 2 %}
+                <span class="badge rounded-pill bold-font" style="background-color: rgb(210, 208, 85); color: rgb(51, 58, 61); margin-top: -2px">APPROVED</span>
+            {% elif beatmapset.key.approved == 1 %}
+                <span class="badge rounded-pill bold-font" style="background-color: rgb(185, 251, 98); color: rgb(51, 58, 61); margin-top: -2px">RANKED</span>
+            {% elif beatmapset.key.approved == 0 %}
+                <span class="badge rounded-pill bold-font" style="background-color: rgb(252, 212, 96); color: rgb(51, 58, 61); margin-top: -2px">PENDING</span>
+            {% elif beatmapset.key.approved == -1 %}
+                <span class="badge rounded-pill bold-font" style="background-color: rgb(245, 146, 93); color: rgb(51, 58, 61); margin-top: -2px">WIP</span>
+            {% elif beatmapset.key.approved == -2 %}
+                <span class="badge rounded-pill bold-font" style="background-color: rgb(0, 0, 0); color: rgb(83, 94, 101); margin-top: -2px">GRAVEYARD</span>
+            {% endif %}
+        </h6>
+        <p>
+            <i class="mdi mdi-play-circle"></i> {{ beatmapset.key.play_count | intcomma }}
+            <i class="mdi mdi-heart"></i> {{ beatmapset.key.favorite_count | intcomma }}
+        </p>
+        <audio controls style="width: 100%; margin-bottom: .5rem;">
+            <source src="//b.ppy.sh/preview/{{ beatmapset.key.beatmapset_id }}.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+        {% for beatmap in beatmapset.value %}
+            <div class="row">
+                <h3><img alt="{{ beatmap.play_mode|get_mode_name }}" src="{% static beatmap.play_mode|get_mode_image %}" width="20px" height="20px"> {{ beatmap.version }}</h3>
+                <p>
+                    {% include "snippets/star_rating_color.html" %}
+                    <i class="mdi mdi-play-circle"></i> {{ beatmap.play_count | intcomma }}
+                    <i class="mdi mdi-check-circle"></i> {{ beatmap.pass_count | intcomma }}
+                </p>
+                <div class="col-sm-6">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <img src="https://s.ppy.sh/a/{{ beatmap.creator_id }}" width="120px" height="120px" alt="{{ beatmap.creator }}'s profile" class="rounded-3">
+                        </div>
+                        <div class="col-sm-8">
+                            <p class="beatmap-infobox-date">mapped by <a href="https://osu.ppy.sh/users/{{ beatmap.creator_id }}" class="text-decoration-none spacing-hover">{{ beatmap.creator }}</a></p>
+                            <p class="beatmap-infobox-date">submitted {{ beatmap.beatmapset.submit_date | date:"j F Y H:i:s" }} UTC</p>
+                            {% if beatmap.approved == 1 %}
+                                <p class="beatmap-infobox-date">ranked {{ beatmap.beatmapset.approved_date | date:"j F Y H:i:s" }} UTC</p>
+                            {% elif beatmap.approved == 3 %}
+                                <p class="beatmap-infobox-date">qualified {{ beatmap.beatmapset.approved_date | date:"j F Y H:i:s" }} UTC</p>
+                            {% else %}
+                                <p class="beatmap-infobox-date">last updated {{ beatmap.beatmapset.last_update | date:"j F Y H:i:s" }} UTC</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 modal-diff" style="background-color: var(--chisato-border)">
+                    <div class="row">
+                        <p></p>
+                        <p>
+                            <i class="mdi mdi-clock"></i> {{ beatmap.total_length | length_format }}  <img src="{% static "img/bpm-circle.svg" %}" alt="BPM" height="20px" width="20px"> {{ beatmap.bpm | floatformat }}  <img src="{% static "img/circle-count-circle.svg" %}" alt="Circle count" height="20px" width="20px"> {{ beatmap.count_normal | intcomma }}  <img src="{% static "img/slider-count-circle.svg" %}" alt="Slider count" height="20px" width="20px"> {{ beatmap.count_slider | intcomma }}
+                            {% if beatmap.play_mode == 0 or beatmap.play_mode == 1 %}
+                                <img src="{% static "img/spinner-count-circle.svg" %}" alt="Spinner Count" height="20px" width="20px"> {{ beatmap.count_spinner | intcomma }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% if beatmap.play_mode == 0 or beatmap.play_mode == 2 %}
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <small class="modal-small">Circle Size</small>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="progress" style="background-color: var(--chisato-background);">
+                                    <div class="progress-bar" role="progressbar" style="width: {{ beatmap.diff_size | convert_progress_bar }}%; background-color: var(--chisato-hover);" aria-valuenow="{{ beatmap.diff_size }}" aria-valuemin="0" aria-valuemax="10"></div>
+                                </div>
+                            </div>
+                            <div class="col-sm-2 beatmap-stat-text">
+                                <small>{{ beatmap.diff_size | convert_beatmap_stat }}</small>
+                            </div>
+                        </div>
+                    {% elif beatmap.play_mode == 3 %}
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <small class="modal-small">Key Amount</small>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="progress" style="background-color: var(--chisato-background);">
+                                    <div class="progress-bar" role="progressbar" style="width: {{ beatmap.diff_size | convert_progress_bar }}%; background-color: var(--chisato-hover);" aria-valuenow="{{ beatmap.diff_size }}" aria-valuemin="0" aria-valuemax="10"></div>
+                                </div>
+                            </div>
+                            <div class="col-sm-2 beatmap-stat-text">
+                                <small>{{ beatmap.diff_size | convert_beatmap_stat }}</small>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <small class="modal-small">HP Drain</small>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="progress" style="background-color: var(--chisato-background);">
+                                <div class="progress-bar" role="progressbar" style="width: {{ beatmap.diff_drain | convert_progress_bar }}%; background-color: var(--chisato-hover);" aria-valuenow="{{ beatmap.diff_drain }}" aria-valuemin="0" aria-valuemax="10"></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-2 beatmap-stat-text">
+                            <small>{{ beatmap.diff_drain | convert_beatmap_stat }}</small>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <small class="modal-small">Accuracy</small>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="progress" style="background-color: var(--chisato-background);">
+                                <div class="progress-bar" role="progressbar" style="width: {{ beatmap.diff_overall | convert_progress_bar }}%; background-color: var(--chisato-hover);" aria-valuenow="{{ beatmap.diff_overall }}" aria-valuemin="0" aria-valuemax="10"></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-2 beatmap-stat-text">
+                            <small>{{ beatmap.diff_overall | convert_beatmap_stat }}</small>
+                        </div>
+                    </div>
+                    {% if beatmap.play_mode == 0 or beatmap.play_mode == 2 %}
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <small class="modal-small">Approach Rate</small>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="progress" style="background-color: var(--chisato-background);">
+                                    <div class="progress-bar" role="progressbar" style="width: {{ beatmap.diff_approach | convert_progress_bar }}%; background-color: var(--chisato-hover);" aria-valuenow="{{ beatmap.diff_approach }}" aria-valuemin="0" aria-valuemax="10"></div>
+                                </div>
+                            </div>
+                            <div class="col-sm-2 beatmap-stat-text">
+                                <small>{{ beatmap.diff_approach | convert_beatmap_stat }}</small>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <small class="modal-small">Star Rating</small>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="progress" style="background-color: var(--chisato-background);">
+                                <div class="progress-bar" role="progressbar" style="width: {{ beatmap.difficulty_rating | convert_progress_bar }}%; background-color: #fc2" aria-valuenow="{{ beatmap.difficulty_rating }}" aria-valuemin="0" aria-valuemax="10"></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-2 beatmap-stat-text">
+                            <small>{{ beatmap.difficulty_rating | convert_star_rating }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <br>
+        {% if beatmapset.key.source %}
+            <p class="fw-bold">Source</p>
+            <p>{{ beatmapset.key.source }}</p>
+        {% endif %}
+        <div class="row">
+            <div class="col-sm-6">
+                <p class="fw-bold">Genre</p>
+                <p>{{ beatmapset.key.genre_id|get_genre_name }}</p>
+            </div>
+            <div class="col-sm-6">
+                <p class="fw-bold">Language</p>
+                <p>{{ beatmapset.key.language_id|get_language_name }}</p>
+            </div>
+        </div>
+        {% if beatmapset.key.tags %}
+            <p class="fw-bold">Tags</p>
+            <p>{{ beatmapset.key.tags }}</p>
+        {% endif %}
+    </div>
+</div>
