@@ -1,0 +1,39 @@
+{% extends "base_apps.html" %}
+
+{% block title %}Template here{% endblock %}
+
+{% block styles %}
+
+{% endblock %}
+
+{% block outer_content %}
+    <div style="background-image: linear-gradient(to bottom, transparent, var(--chisato-background)), url({{ profile.cover_picture.url }}); height: 400px; max-height:1000px; width:100%; background-size: cover; background-position: top; background-repeat: no-repeat; position: relative;"></div>
+    <div class="container px-4 py-4 my-4 d-grid gap-4">
+        <div class="row profile-container" style="margin-top: -150px;">
+            <div class="col col-2" id="profile-pic">
+                <img data-aos="zoom-in" data-aos-duration="600" src="{{ profile.profile_picture.url }}" alt="{{ profile.user.username }}" width="100%" class="rounded-circle profile-page-pic" style="min-width:50px">
+            </div>
+            <div class="col col-10" id="profile-detail">
+                <h1 data-aos="fade-up" data-aos-duration="700">{{ profile.user.username }}</h1>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <h2>Collections</h2>
+        {% if collections|length == 0 %}
+            <p>This user has no public collections.</p>
+        {% else %}
+            {% for collection in collections %}
+                {% include "collection/snippets/collection_row.html" %}
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block content %}
+
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock %}

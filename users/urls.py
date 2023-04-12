@@ -6,4 +6,5 @@ from users import views
 urlpatterns = [
     path('settings/', views.settings, name='settings'),
     path('logout/', views.LogoutAndRedirect.as_view(), name='logout'),
+    path('profile/<int:user_id>/', views.profile, name='profile'),
 ]

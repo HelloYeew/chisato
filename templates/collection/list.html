@@ -10,22 +10,7 @@
 {% block content %}
     <h1 style="padding-top: 1rem; padding-bottom: 1rem;">Your Collections</h1>
     {% for collection in collections %}
-    <div class="beatmapset-row-wrapper" style="background: url({% static "img/background/login.jpg" %}) no-repeat center center; background-size: cover; width: 100%; height: 100%; border-radius: 0.25rem;">
-        <div class="row beatmapset-row">
-            <div class="col-1">
-                <img alt="{{ collection.name }}" src="{% static 'placeholder.png' %}" style="width: 100%; border-radius: 0.5rem; min-width: 50px;">
-            </div>
-            <div class="col-10" style="vertical-align: center">
-                <p style="font-size: 20px; font-weight: 600;">{{ collection.name }} {% if collection.default_collection %}<span class="badge rounded-pill" style="background-color: var(--chisato-background);">Default</span>{% endif %} {% if collection.private %}<span class="badge rounded-pill" style="background-color: var(--chisato-background);">Private</span>{% endif %}</p>
-            </div>
-            <div class="col-1" style="vertical-align: center">
-                <p></p>
-                <a class="btn btn-primary" href="{% url "collections_detail" collection.id %}">
-                    <i class="mdi mdi-arrow-right" aria-hidden="true" style="font-size: 20px"></i>
-                </a>
-            </div>
-        </div>
-    </div>
+    {% include "collection/snippets/collection_row.html" %}
     {% endfor %}
 {% endblock %}
 

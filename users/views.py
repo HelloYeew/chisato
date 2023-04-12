@@ -5,6 +5,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
 from django.contrib.auth import views as auth_views
 
+from collection.models import Collection
 from users.forms import UserSettingsForm
 from users.models import Profile
 
@@ -52,4 +53,11 @@ def settings(request):
         'osu_username': osu_username,
         'profile': Profile.objects.get(user=request.user),
         'social_account': SocialAccount.objects.filter(user=request.user).first()
+    })
+
+
+def profile(request, user_id):
+    return render(request, 'users/profile.html', {
+        'profile': Profile.objects.get(user_id=user_id),
+        'collections': Collection.objects.filter(owner_id=user_id, private=False)
     })
