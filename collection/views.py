@@ -1,13 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from collection.forms import CollectionForm
 from collection.models import Collection, CollectionBeatmap
 
-BEATMAPSET_PER_PAGE = 20
+BEATMAPSET_PER_PAGE = 30
 
 
 @login_required
