@@ -102,16 +102,16 @@ class Command(BaseCommand):
                 logger.info(f'📕 Collection {message["CollectionName"]} already exists, skipping')
             else:
                 logger.info(f'📕 Collection {message["CollectionName"]} does not exist, creating')
-                Collection.objects.create(owner_id=message['UserId'], name=message['CollectionName'])
+                Collection.objects.create(owner_id=message['UserId'], name=message['CollectionName'], file_name=message['CollectionName'])
                 logger.info(f'📕 Collection {message["CollectionName"]} has been created')
             # Add to collection
             logger.info(f'➕ Adding beatmap {message["BeatmapId"]} to collection')
-            if Collection.objects.filter(owner_id=message['UserId'], name=message['CollectionName']).exists():
+            if Collection.objects.filter(owner_id=message['UserId'], file_name=message['CollectionName']).exists():
                 logger.info(f'➕ Collection {message["CollectionName"]} already exists, checking that beatmap is not already in it')
-                collection = Collection.objects.get(owner_id=message['UserId'], name=message['CollectionName'])
+                collection = Collection.objects.get(owner_id=message['UserId'], file_name=message['CollectionName'])
                 if int(message['BeatmapId']) != 0 and int(message['BeatmapId']) != -1 and collection.default_collection:
                     beatmap = Beatmap.objects.get(beatmap_id=message['BeatmapId'])
-                    collection = Collection.objects.get(owner_id=message['UserId'], name=message['CollectionName'])
+                    collection = Collection.objects.get(owner_id=message['UserId'], file_name=message['CollectionName'])
                     if CollectionBeatmap.objects.filter(collection=collection, beatmap=beatmap).exists():
                         logger.info(
                             f'➕ Beatmap {message["BeatmapId"]} already exists in collection {message["CollectionName"]}')

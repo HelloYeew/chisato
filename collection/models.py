@@ -91,6 +91,8 @@ class Collection(models.Model):
     Database table to store the collection detail/
     """
     name = models.CharField(max_length=255)
+    # Original name from the collection database file
+    file_name = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
