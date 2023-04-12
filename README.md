@@ -1,8 +1,15 @@
-<img src="static/chisato-icon-small.jpg" alt="Chisato" width="300" />
-
 # Chisato
 
 An osu! collection showcase and backup.
+
+# About Chisato
+
+This is the next version of [beattpsetto](https://github.com/beattosetto/beattosetto) which is a collection showcase and backup for osu!.
+This project's structure has changed a lot from the previous version, allow more flexibility and easier to add the functionality to it.
+
+Current this project is in beta phase (usable now but some function is not available yet), you can try it out at [chisato.app](https://chisato.app).
+
+You can report any issue or suggestion by creating a new issue in this repository.
 
 ## Start developing Chisato
 
