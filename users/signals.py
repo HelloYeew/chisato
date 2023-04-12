@@ -23,6 +23,7 @@ def create_default_collection(sender, instance, created, **kwargs):
     if created:
         Collection.objects.create(
             name='All beatmaps',
+            file_name='All beatmaps',
             description='Default collection for all beatmaps',
             owner=instance,
             default_collection=True
