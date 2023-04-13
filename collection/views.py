@@ -13,7 +13,8 @@ BEATMAPSET_PER_PAGE = 30
 def home(request):
     # Minus by 1 because default collection is not counted
     collection_count = Collection.objects.filter(owner=request.user).count() - 1
-    beatmap_count = CollectionBeatmap.objects.filter(collection__owner=request.user).count()
+    default_collection = Collection.objects.filter(owner=request.user, default_collection=True).first()
+    beatmap_count = CollectionBeatmap.objects.filter(collection=default_collection).count()
     return render(request, 'collection/home.html', {
         'collection_count': collection_count,
         'beatmap_count': beatmap_count
