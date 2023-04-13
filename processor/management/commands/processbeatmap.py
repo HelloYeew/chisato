@@ -78,71 +78,71 @@ class Command(BaseCommand):
             message = json.loads(body)
             # Check that beatmapset and beatmap is available
             if BeatmapSet.objects.filter(beatmapset_id=message['BeatmapSetId']).exists():
-                logger.info('🗺️ Beatmapset {message["BeatmapSetId"]} already exists, skipping')
+                logger.debug('🗺️ Beatmapset {message["BeatmapSetId"]} already exists, skipping')
             else:
                 if int(message['BeatmapSetId']) == 0 or int(message['BeatmapSetId']) == -1:
-                    logger.info(f'🗺️ Beatmapset {message["BeatmapSetId"]} is -1 (local), skipping')
+                    logger.debug(f'🗺️ Beatmapset {message["BeatmapSetId"]} is -1 (local), skipping')
                 else:
-                    logger.info(f'🗺️ Beatmapset {message["BeatmapSetId"]} does not exist, importing')
+                    logger.debug(f'🗺️ Beatmapset {message["BeatmapSetId"]} does not exist, importing')
                     use_external_api = True
                     import_beatmapset(message['BeatmapSetId'])
-                    logger.info(f'🗺️ Beatmapset {message["BeatmapSetId"]} has been imported')
+                    logger.debug(f'🗺️ Beatmapset {message["BeatmapSetId"]} has been imported')
             if Beatmap.objects.filter(beatmap_id=message['BeatmapId']).exists():
-                logger.info(f'🗺️ Beatmap {message["BeatmapId"]} already exists, skipping')
+                logger.debug(f'🗺️ Beatmap {message["BeatmapId"]} already exists, skipping')
             else:
                 if int(message['BeatmapId']) == 0 or int(message['BeatmapId']) == -1:
-                    logger.info(f'🗺️ Beatmap {message["BeatmapId"]} is 0 (local), skipping')
+                    logger.debug(f'🗺️ Beatmap {message["BeatmapId"]} is 0 (local), skipping')
                 else:
-                    logger.info(f'🗺️ Beatmap {message["BeatmapId"]} does not exist, importing')
+                    logger.debug(f'🗺️ Beatmap {message["BeatmapId"]} does not exist, importing')
                     use_external_api = True
                     import_beatmapset(message['BeatmapSetId'])
-                    logger.info(f'🗺️ Beatmap {message["BeatmapId"]} has been imported')
+                    logger.debug(f'🗺️ Beatmap {message["BeatmapId"]} has been imported')
             # Check that collection exists
             if Collection.objects.filter(owner_id=message['UserId'], name=message['CollectionName']).exists():
-                logger.info(f'📕 Collection {message["CollectionName"]} already exists, skipping')
+                logger.debug(f'📕 Collection {message["CollectionName"]} already exists, skipping')
             else:
-                logger.info(f'📕 Collection {message["CollectionName"]} does not exist, creating')
+                logger.debug(f'📕 Collection {message["CollectionName"]} does not exist, creating')
                 Collection.objects.create(owner_id=message['UserId'], name=message['CollectionName'], file_name=message['CollectionName'])
-                logger.info(f'📕 Collection {message["CollectionName"]} has been created')
+                logger.debug(f'📕 Collection {message["CollectionName"]} has been created')
             # Add to collection
-            logger.info(f'➕ Adding beatmap {message["BeatmapId"]} to collection')
+            logger.debug(f'➕ Adding beatmap {message["BeatmapId"]} to collection')
             if Collection.objects.filter(owner_id=message['UserId'], file_name=message['CollectionName']).exists():
-                logger.info(f'➕ Collection {message["CollectionName"]} already exists, checking that beatmap is not already in it')
+                logger.debug(f'➕ Collection {message["CollectionName"]} already exists, checking that beatmap is not already in it')
                 collection = Collection.objects.get(owner_id=message['UserId'], file_name=message['CollectionName'])
                 if int(message['BeatmapId']) != 0 and int(message['BeatmapId']) != -1 and collection.default_collection:
                     beatmap = Beatmap.objects.get(beatmap_id=message['BeatmapId'])
                     collection = Collection.objects.get(owner_id=message['UserId'], file_name=message['CollectionName'])
                     if CollectionBeatmap.objects.filter(collection=collection, beatmap=beatmap).exists():
-                        logger.info(
+                        logger.debug(
                             f'➕ Beatmap {message["BeatmapId"]} already exists in collection {message["CollectionName"]}')
                     else:
-                        logger.info(
+                        logger.debug(
                             f'➕ Beatmap {message["BeatmapId"]} does not exist in collection {message["CollectionName"]}, adding')
                         CollectionBeatmap.objects.create(collection=collection, beatmap=beatmap)
-                        logger.info(
+                        logger.debug(
                             f'➕ Beatmap {message["BeatmapId"]} has been added to collection {message["CollectionName"]}')
                 elif not collection.default_collection:
                     if Beatmap.objects.filter(checksum=message['BeatmapChecksum']).exists():
                         beatmap = Beatmap.objects.filter(checksum=message['BeatmapChecksum']).first()
                         if CollectionBeatmap.objects.filter(collection=collection, beatmap=beatmap).exists():
-                            logger.info(
+                            logger.debug(
                                 f'➕ Beatmap with checksum {message["BeatmapChecksum"]} already exists in collection {message["CollectionName"]}')
                         else:
-                            logger.info(
+                            logger.debug(
                                 f'➕ Beatmap with checksum {message["BeatmapChecksum"]} does not exist in collection {message["CollectionName"]}, adding')
                             CollectionBeatmap.objects.create(collection=collection, beatmap=beatmap)
-                            logger.info(
+                            logger.debug(
                                 f'➕ Beatmap with checksum {message["BeatmapChecksum"]} has been added to collection {message["CollectionName"]}')
                     else:
-                        logger.info(f'➕ Beatmap with checksum {message["BeatmapChecksum"]} does not exist, skipping')
+                        logger.debug(f'➕ Beatmap with checksum {message["BeatmapChecksum"]} does not exist, skipping')
                 else:
-                    logger.info(f'➕ Beatmap {message["BeatmapId"]} is local (-1 or 0), skipping')
+                    logger.debug(f'➕ Beatmap {message["BeatmapId"]} is local (-1 or 0), skipping')
             else:
                 # This should never happen but just in case for safety
                 logger.warning(f'➕ Collection {message["CollectionName"]} does not exist, skipping')
             logger.info(f'✅️ Message {body} processed')
             if use_external_api:
-                logger.info(f'🛌 Sleeping for 1 seconds to avoid rate limiting')
+                logger.debug(f'🛌 Sleeping for 1 seconds to avoid rate limiting')
                 time.sleep(1)
         except Exception as e:
             logger.critical(f'❌ Error processing message {body}')

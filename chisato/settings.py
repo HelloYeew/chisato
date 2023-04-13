@@ -216,8 +216,9 @@ if config('SENTRY_DSN') != "":
 # Logging
 # https://docs.djangoproject.com/en/4.2/topics/logging/
 
+ENABLE_LOKI = config('ENABLE_LOKI', default=False, cast=bool)
 
-if config('LOKI_URL') != "":
+if ENABLE_LOKI:
     handler = logging_loki.LokiHandler(
         url=config('LOKI_URL', default="http://localhost:3100/loki/api/v1/push"),
         tags={"app": "chisato", "env": "debug" if DEBUG else "production"},
@@ -235,23 +236,47 @@ if config('LOKI_URL') != "":
         },
         'handlers': {
             'console': {
-                'level': 'INFO',
+                'level': 'INFO' if not DEBUG else 'DEBUG',
                 'class': 'logging.StreamHandler',
                 'formatter': 'standard',
             },
             'loki': {
-                'level': 'INFO',
+                'level': 'INFO' if not DEBUG else 'DEBUG',
                 'class': 'logging_loki.LokiHandler',
                 'url': config('LOKI_URL', default="http://localhost:3100/loki/api/v1/push"),
                 'tags': {"app": "chisato", "env": "debug" if DEBUG else "production"},
                 'version': "1",
             }
-            # TODO: Fix broken setting from https://github.com/HelloYeew/chisato/commit/251e2827b68fe28f2074d69ed53d1c7c4144b504
         },
         'loggers': {
             '': {
                 'handlers': ['console', 'loki'],
-                'level': 'DEBUG',
+                'level': 'INFO' if not DEBUG else 'DEBUG',
+                'propagate': True
+            }
+        }
+    }
+else:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'standard': {
+                'format': '[%(asctime)s] {%(module)s} [%(levelname)s] - %(message)s',
+                'datefmt': '%d-%m-%Y %H:%M:%S'
+            },
+        },
+        'handlers': {
+            'console': {
+                'level': 'INFO' if not DEBUG else 'DEBUG',
+                'class': 'logging.StreamHandler',
+                'formatter': 'standard',
+            },
+        },
+        'loggers': {
+            '': {
+                'handlers': ['console'],
+                'level': 'INFO' if not DEBUG else 'DEBUG',
                 'propagate': True
             }
         }
