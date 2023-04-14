@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&family=M+PLUS+Rounded+1c:wght@300;400;500;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
 
 * {
     --chisato-background: #fefafa;
@@ -26,7 +26,7 @@
     --bs-border-width: 1px;
     --bs-border-color-translucent: var(--chisato-translucent);
 
-    font-family: 'Comfortaa', cursive;
+    font-family: 'Comfortaa', 'Noto Sans Thai', 'M PLUS Rounded 1c', sans-serif;
     font-size: 16px;
 
     transition: all .2s;
