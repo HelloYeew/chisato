@@ -59,5 +59,6 @@ def settings(request):
 def profile(request, user_id):
     return render(request, 'users/profile.html', {
         'profile': Profile.objects.get(user_id=user_id),
-        'collections': Collection.objects.filter(owner_id=user_id, private=False)
+        'collections': Collection.objects.filter(owner_id=user_id, private=False),
+        'navbar_transparent': True
     })
