@@ -192,6 +192,10 @@ a:hover {
     background-color: var(--chisato-hover);
 }
 
+.navbar {
+    background-color: var(--chisato-background-darker);
+}
+
 .navbar-brand {
     color: var(--chisato-text);
 }
@@ -210,4 +214,9 @@ a:hover {
 
 .nav-link:hover {
     color: var(--chisato-hover);
+}
+
+.navbar-transparent.navbar {
+    background-color: transparent;
+    box-shadow: none;
 }
