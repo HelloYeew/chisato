@@ -13,6 +13,9 @@
         <i class="mdi mdi-bell" aria-hidden="true" style="font-size: 20px"></i> You don't have any beatmap yet, let's upload your collection by <a href="{% url 'backup_upload' %}">create new backup</a> !
     </div>
     {% endif %}
+    <div class="alert alert-warning" role="alert">
+        <i class="mdi mdi-beta" aria-hidden="true" style="font-size: 20px"></i> This is the beta phase of Chisato, some beatmap processing may take a long time, please frequently check the result of the processing. I am sorry for the inconvenience. If your beatmap is not processed, please contact me at Discord : HelloYeew#2740 or feel free to <a href="mailto:me@helloyeew.dev">email me</a>. - HelloYeew
+    </div>
     <a href="{% url 'collections_list' %}" class="btn btn-primary"><i class="mdi mdi-account" aria-hidden="true" style="font-size: 20px"></i> Your Collections</a>
     <a href="{% url 'backup_home' %}" class="btn btn-primary"><i class="mdi mdi-cloud-upload" aria-hidden="true" style="font-size: 20px"></i> Backup</a>
     <p></p>
