@@ -20,7 +20,7 @@ RABBITMQ_USER = config('RABBITMQ_USER', default='guest')
 RABBITMQ_PASSWORD = config('RABBITMQ_PASSWORD', default='guest')
 
 credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
-parameters = pika.ConnectionParameters(RABBITMQ_HOST, RABBITMQ_PORT, '/', credentials)
+parameters = pika.ConnectionParameters(RABBITMQ_HOST, RABBITMQ_PORT, '/', credentials, heartbeat=65535)
 
 
 class Command(BaseCommand):
