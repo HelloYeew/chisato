@@ -1,4 +1,5 @@
 {% extends "base_apps.html" %}
+{% load humanize %}
 
 {% block title %}{{ profile.user.username }}{% endblock %}
 
@@ -15,6 +16,25 @@
             </div>
             <div class="col col-10" id="profile-detail">
                 <h1 data-aos="fade-up" data-aos-duration="700">{{ profile.user.username }}</h1>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <h2>Statistics</h2>
+        <div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="statistic-container">
+                        <h5>Collection</h5>
+                        <p class="fs-3">{{ collection_count | intcomma }}</p>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="statistic-container">
+                        <h5>Beatmap</h5>
+                        <p class="fs-3">{{ beatmap_count | intcomma }}</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

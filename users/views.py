@@ -2,10 +2,11 @@ from allauth.socialaccount.models import SocialAccount
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.contrib.auth import views as auth_views
 
-from collection.models import Collection
+from collection.models import Collection, CollectionBeatmap
 from users.forms import UserSettingsForm
 from users.models import Profile
 
@@ -57,8 +58,15 @@ def settings(request):
 
 
 def profile(request, user_id):
+    # Minus by 1 because default collection is not counted
+    user = User.objects.get(id=user_id)
+    collection_count = Collection.objects.filter(owner=request.user).count() - 1
+    default_collection = Collection.objects.filter(owner=request.user, default_collection=True).first()
+    beatmap_count = CollectionBeatmap.objects.filter(collection=default_collection).count()
     return render(request, 'users/profile.html', {
         'profile': Profile.objects.get(user_id=user_id),
         'collections': Collection.objects.filter(owner_id=user_id, private=False),
-        'navbar_transparent': True
+        'navbar_transparent': True,
+        'collection_count': collection_count,
+        'beatmap_count': beatmap_count
     })

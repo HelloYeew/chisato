@@ -1,4 +1,5 @@
 {% extends "base_apps.html" %}
+{% load humanize %}
 
 {% block title %}Collection Home{% endblock %}
 
@@ -25,13 +26,13 @@
             <div class="col-lg-6">
                 <div class="statistic-container">
                     <h5>Collection</h5>
-                    <p class="fs-3">{{ collection_count }}</p>
+                    <p class="fs-3">{{ collection_count | intcomma }}</p>
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="statistic-container">
                     <h5>Beatmap</h5>
-                    <p class="fs-3">{{ beatmap_count }}</p>
+                    <p class="fs-3">{{ beatmap_count | intcomma }}</p>
                 </div>
             </div>
         </div>
