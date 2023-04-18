@@ -60,8 +60,8 @@ def settings(request):
 def profile(request, user_id):
     # Minus by 1 because default collection is not counted
     user = User.objects.get(id=user_id)
-    collection_count = Collection.objects.filter(owner=request.user).count() - 1
-    default_collection = Collection.objects.filter(owner=request.user, default_collection=True).first()
+    collection_count = Collection.objects.filter(owner=user).count() - 1
+    default_collection = Collection.objects.filter(owner=user, default_collection=True).first()
     beatmap_count = CollectionBeatmap.objects.filter(collection=default_collection).count()
     return render(request, 'users/profile.html', {
         'profile': Profile.objects.get(user_id=user_id),
