@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from collection.forms import CollectionForm
-from collection.models import Collection, CollectionBeatmap
+from collection.models import Collection, CollectionBeatmap, CollectionBeatmapSet
 
 BEATMAPSET_PER_PAGE = 30
 
@@ -30,22 +30,24 @@ def collection_list(request):
 
 
 def collection_detail(request, collection_id):
-    collection = Collection.objects.get(id=collection_id)
-    if collection.private and collection.owner != request.user:
-        return render(request, '404.html', status=404)
-    beatmaps = CollectionBeatmap.objects.filter(collection=collection).order_by('beatmap__beatmapset__artist', 'beatmap__beatmapset__title')
-    # Group beatmapset by beatmapset_id
-    beatmapsets = {}
-    for collection_beatmap in beatmaps:
-        beatmapset = collection_beatmap.beatmap.beatmapset
-        if beatmapset not in beatmapsets:
-            beatmapsets[beatmapset] = []
-        beatmapsets[beatmapset].append(collection_beatmap.beatmap)
-    total_beatmapset = len(beatmapsets)
     try:
         page_number = int(request.GET.get('page', 1))
     except ValueError:
         page_number = 1
+    collection = Collection.objects.get(id=collection_id)
+    if collection.private and collection.owner != request.user:
+        return render(request, '404.html', status=404)
+    # Get only beatmapsets using in this page
+    beatmapset = CollectionBeatmapSet.objects.filter(collection=collection).order_by('beatmapset__artist', 'beatmapset__title')[(page_number - 1) * BEATMAPSET_PER_PAGE:page_number * BEATMAPSET_PER_PAGE]
+    beatmapsets = {}
+    for collection_beatmapset in beatmapset:
+        all_beatmap = CollectionBeatmap.objects.filter(collection=collection, beatmap__beatmapset=collection_beatmapset.beatmapset)
+        beatmap_only = []
+        for beatmap in all_beatmap:
+            beatmap_only.append(beatmap.beatmap)
+        beatmapsets[collection_beatmapset.beatmapset] = beatmap_only
+    print(beatmapsets)
+    total_beatmapset = CollectionBeatmapSet.objects.filter(collection=collection).count()
     total_page = total_beatmapset // BEATMAPSET_PER_PAGE + 1
     if total_beatmapset % BEATMAPSET_PER_PAGE == 0:
         total_page -= 1
@@ -67,11 +69,6 @@ def collection_detail(request, collection_id):
             'page_list': range(1, 2),
             'showing_string': showing_string
         })
-    # cut the beatmapsets into pages
-    # Slide the beatmapsets from 20*page_number-19 to 20*page_number
-    beatmapsets = list(beatmapsets.items())[BEATMAPSET_PER_PAGE * page_number - BEATMAPSET_PER_PAGE:BEATMAPSET_PER_PAGE * page_number]
-    # Convert back to the same format as before
-    beatmapsets = dict(beatmapsets)
     showing_string = f"Showing beatmapsets {BEATMAPSET_PER_PAGE * int(page_number) - BEATMAPSET_PER_PAGE + 1} to {BEATMAPSET_PER_PAGE * int(page_number) if BEATMAPSET_PER_PAGE * int(page_number) <= total_beatmapset else total_beatmapset} of {total_beatmapset}"
     return render(request, 'collection/detail.html', {
         'collection': collection,
