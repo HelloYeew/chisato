@@ -125,3 +125,21 @@ class CollectionBeatmap(models.Model):
         verbose_name = 'Collection Beatmap'
         verbose_name_plural = 'Collection Beatmaps'
         unique_together = ('collection', 'beatmap')
+
+
+class CollectionBeatmapSet(models.Model):
+    """
+    Database table to store the beatmapset in collection.
+    """
+    collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
+    beatmapset = models.ForeignKey(BeatmapSet, on_delete=models.CASCADE)
+    added_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.collection.name + ' - ' + self.beatmapset.artist + ' - ' + self.beatmapset.title
+
+    class Meta:
+        db_table = 'collection_collectionbeatmapset'
+        verbose_name = 'Collection Beatmap Set'
+        verbose_name_plural = 'Collection Beatmap Sets'
+        unique_together = ('collection', 'beatmapset')
