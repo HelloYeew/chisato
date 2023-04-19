@@ -9,7 +9,7 @@ from django.core.management import BaseCommand
 from pika.exceptions import StreamLostError
 from sentry_sdk import capture_exception
 
-from collection.models import BeatmapSet, Beatmap, Collection, CollectionBeatmap
+from collection.models import BeatmapSet, Beatmap, Collection, CollectionBeatmap, CollectionBeatmapSet
 from utility.osu_api.importer import import_beatmapset
 
 logger = logging.getLogger(__name__)
@@ -37,9 +37,11 @@ class Command(BaseCommand):
             channel.start_consuming()
             logger.info(f'🐰 Ready to process messages, waiting for messages...')
         except StreamLostError:
+            channel.stop_consuming()
+            connection.close()
+            # Reconnect
             logger.info(f'🐰 Connection to RabbitMQ lost, trying to reconnect...')
-            # check heartbeat
-            connection.process_data_events(time_limit=2)
+            self.handle()
             # Try to reconnect (Deprecated : Use above code)
             # connection = pika.BlockingConnection(parameters)
             # channel = connection.channel()
@@ -48,8 +50,6 @@ class Command(BaseCommand):
             # channel.basic_consume(queue='api-process-default', on_message_callback=self.callback, auto_ack=True)
             # channel.start_consuming()
             # channel.close()
-            logger.info(f'🐰 Reconnected to RabbitMQ')
-            time.sleep(10)
         except KeyboardInterrupt:
             # Gracefully close the connection
             channel.stop_consuming()
@@ -78,7 +78,7 @@ class Command(BaseCommand):
             message = json.loads(body)
             # Check that beatmapset and beatmap is available
             if BeatmapSet.objects.filter(beatmapset_id=message['BeatmapSetId']).exists():
-                logger.debug('🗺️ Beatmapset {message["BeatmapSetId"]} already exists, skipping')
+                logger.debug(f'🗺️ Beatmapset {message["BeatmapSetId"]} already exists, skipping')
             else:
                 if int(message['BeatmapSetId']) == 0 or int(message['BeatmapSetId']) == -1:
                     logger.debug(f'🗺️ Beatmapset {message["BeatmapSetId"]} is -1 (local), skipping')
@@ -106,12 +106,12 @@ class Command(BaseCommand):
                 logger.debug(f'📕 Collection {message["CollectionName"]} has been created')
             # Add to collection
             logger.debug(f'➕ Adding beatmap {message["BeatmapId"]} to collection')
-            if Collection.objects.filter(owner_id=message['UserId'], file_name=message['CollectionName']).exists():
+            if Collection.objects.filter(owner_id=message['UserId'], name=message['CollectionName']).exists():
                 logger.debug(f'➕ Collection {message["CollectionName"]} already exists, checking that beatmap is not already in it')
-                collection = Collection.objects.get(owner_id=message['UserId'], file_name=message['CollectionName'])
+                collection = Collection.objects.get(owner_id=message['UserId'], name=message['CollectionName'])
                 if int(message['BeatmapId']) != 0 and int(message['BeatmapId']) != -1 and collection.default_collection:
                     beatmap = Beatmap.objects.get(beatmap_id=message['BeatmapId'])
-                    collection = Collection.objects.get(owner_id=message['UserId'], file_name=message['CollectionName'])
+                    collection = Collection.objects.get(owner_id=message['UserId'], name=message['CollectionName'])
                     if CollectionBeatmap.objects.filter(collection=collection, beatmap=beatmap).exists():
                         logger.debug(
                             f'➕ Beatmap {message["BeatmapId"]} already exists in collection {message["CollectionName"]}')
@@ -121,6 +121,15 @@ class Command(BaseCommand):
                         CollectionBeatmap.objects.create(collection=collection, beatmap=beatmap)
                         logger.debug(
                             f'➕ Beatmap {message["BeatmapId"]} has been added to collection {message["CollectionName"]}')
+                    if CollectionBeatmapSet.objects.filter(collection=collection, beatmapset=beatmap.beatmapset).exists():
+                        logger.debug(
+                            f'➕ Beatmapset {message["BeatmapSetId"]} already exists in collection {message["CollectionName"]}')
+                    else:
+                        logger.debug(
+                            f'➕ Beatmapset {message["BeatmapSetId"]} does not exist in collection {message["CollectionName"]}, adding')
+                        CollectionBeatmapSet.objects.create(collection=collection, beatmapset=beatmap.beatmapset)
+                        logger.debug(
+                            f'➕ Beatmapset {message["BeatmapSetId"]} has been added to collection {message["CollectionName"]}')
                 elif not collection.default_collection:
                     if Beatmap.objects.filter(checksum=message['BeatmapChecksum']).exists():
                         beatmap = Beatmap.objects.filter(checksum=message['BeatmapChecksum']).first()
@@ -133,6 +142,15 @@ class Command(BaseCommand):
                             CollectionBeatmap.objects.create(collection=collection, beatmap=beatmap)
                             logger.debug(
                                 f'➕ Beatmap with checksum {message["BeatmapChecksum"]} has been added to collection {message["CollectionName"]}')
+                        if CollectionBeatmapSet.objects.filter(collection=collection, beatmapset=beatmap.beatmapset).exists():
+                            logger.debug(
+                                f'➕ Beatmapset {message["BeatmapSetId"]} already exists in collection {message["CollectionName"]}')
+                        else:
+                            logger.debug(
+                                f'➕ Beatmapset {message["BeatmapSetId"]} does not exist in collection {message["CollectionName"]}, adding')
+                            CollectionBeatmapSet.objects.create(collection=collection, beatmapset=beatmap.beatmapset)
+                            logger.debug(
+                                f'➕ Beatmapset {message["BeatmapSetId"]} has been added to collection {message["CollectionName"]}')
                     else:
                         logger.debug(f'➕ Beatmap with checksum {message["BeatmapChecksum"]} does not exist, skipping')
                 else:
