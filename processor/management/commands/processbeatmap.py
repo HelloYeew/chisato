@@ -27,34 +27,31 @@ class Command(BaseCommand):
     help = 'Process the collection from RabbitMQ messages and listen for new messages'
 
     def handle(self, *args, **options):
-        connection = pika.BlockingConnection(parameters)
-        connection.process_data_events(time_limit=2)
-        channel = connection.channel()
-        channel.exchange_declare(exchange='api-process', durable=True, exchange_type='direct')
-        channel.queue_declare(queue='api-process-default', durable=True)
-        channel.basic_consume(queue='api-process-default', on_message_callback=self.callback, auto_ack=True)
-        try:
-            channel.start_consuming()
-            logger.info(f'🐰 Ready to process messages, waiting for messages...')
-        except StreamLostError:
-            channel.stop_consuming()
-            connection.close()
-            # Reconnect
-            logger.info(f'🐰 Connection to RabbitMQ lost, trying to reconnect...')
-            self.handle()
-            # Try to reconnect (Deprecated : Use above code)
-            # connection = pika.BlockingConnection(parameters)
-            # channel = connection.channel()
-            # channel.exchange_declare(exchange='api-process', durable=True, exchange_type='direct')
-            # channel.queue_declare(queue='api-process-default', durable=True)
-            # channel.basic_consume(queue='api-process-default', on_message_callback=self.callback, auto_ack=True)
-            # channel.start_consuming()
-            # channel.close()
-        except KeyboardInterrupt:
-            # Gracefully close the connection
-            channel.stop_consuming()
-            connection.close()
-            logger.info(f'🐰 Exiting, closed connection to RabbitMQ')
+        while True:
+            connection = pika.BlockingConnection(parameters)
+            connection.process_data_events(time_limit=2)
+            channel = connection.channel()
+            channel.exchange_declare(exchange='api-process', durable=True, exchange_type='direct')
+            channel.queue_declare(queue='api-process-default', durable=True)
+            channel.basic_consume(queue='api-process-default', on_message_callback=self.callback, auto_ack=True)
+            try:
+                channel.start_consuming()
+                logger.info(f'🐰 Ready to process messages, waiting for messages...')
+            except StreamLostError:
+                logger.info(f'🐰 Connection to RabbitMQ lost, reconnecting...')
+                time.sleep(1)
+                continue
+            except KeyboardInterrupt:
+                # Gracefully close the connection
+                channel.stop_consuming()
+                connection.close()
+                logger.info(f'🐰 Exiting, closed connection to RabbitMQ')
+                break
+            except Exception as e:
+                capture_exception(e)
+                logger.error(f'🐰 Unknown error occurred, reconnecting...')
+                time.sleep(1)
+                continue
 
     def callback(self, ch, method, properties, body):
         """Callback from RabbitMQ consumer to create a new thread to process the message"""
