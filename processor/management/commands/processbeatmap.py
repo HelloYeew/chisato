@@ -1,5 +1,6 @@
 import json
 import logging
+import ssl
 import time
 import threading
 
@@ -20,7 +21,11 @@ RABBITMQ_USER = config('RABBITMQ_USER', default='guest')
 RABBITMQ_PASSWORD = config('RABBITMQ_PASSWORD', default='guest')
 
 credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
-parameters = pika.ConnectionParameters(RABBITMQ_HOST, RABBITMQ_PORT, '/', credentials, heartbeat=65535)
+if config('RABBITMQ_SSL', default=False, cast=bool):
+    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    parameters = pika.ConnectionParameters(RABBITMQ_HOST, RABBITMQ_PORT, '/', credentials, heartbeat=65535, ssl_options=pika.SSLOptions(context))
+else:
+    parameters = pika.ConnectionParameters(RABBITMQ_HOST, RABBITMQ_PORT, '/', credentials)
 
 
 class Command(BaseCommand):
